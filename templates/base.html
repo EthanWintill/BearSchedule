@@ -1,0 +1,28 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bear Schedule</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pico.min.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}"> -->
+</head>
+<body>
+
+    {% block navbar %}
+    <nav class="container-fluid">
+        <ul>
+            <strong>
+                <li><a href="{{ url_for('schedule_view')}}" class="contrast"><strong>Bear</strong></a></li>
+            </strong>
+        </ul>
+        <ul>
+            <li><a href="{{ url_for('auth.logout') }}" role="button" class="contrast">Logout</a></li>
+        </ul>
+    </nav>
+    {%endblock%}
+
+    {% block content %}
+
+    {%endblock%}
+</body>
+</html>

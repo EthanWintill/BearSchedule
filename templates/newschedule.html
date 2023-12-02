@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% block script %} 
+<script > 
+    window.needed_shifts = ('{{ shifts | tojson | safe }}');
+    window.avails = '{{availabilities | tojson | safe }}'
+</script> 
+<script src="/static/js/newschedule.js" ></script>
+{%endblock%}
+
+<main class="container-fluid">
+    <div class="container">
+        <h1>New Schedule</h1>
+        <p>{{availabilities}}</p>
+        <p>{{shifts}}</p>
+        <p>{{days}}</p>
+    </div>
+
+    <form method="POST">
+        <table>
+            <tr>
+                <th>User</th>
+                {% for day in days %}
+                <th>{{ day }}</th>
+                {% endfor %}
+            </tr>
+            {% for availability in availabilities %}
+            <tr>
+                <td>{{ availability }}</td>
+                {% for day in days %}
+                <td>
+                    <select name="{{ availability }}_{{ day }}" id="{{ availability }}_{{ day }}" onchange="updateDay('{{day}}','{{availability}}')">
+                        <option value="">Unassigned</option>
+                        <!-- {% for shift in shifts[day] %}
+                            {% if 'PM' in availabilities[availability][day] and shift[0]=='5' %} 
+                                <option  value="{{ shift }}" id="{{shift}}_{{loop.count}}">{{ shift }}</option>
+                            {% elif 'AM' in availabilities[availability][day] and shift[0]!='5'%}
+                                <option value="{{ shift }}" >{{ shift }}</option>
+                            {% endif %}
+                        {% endfor %} -->
+                    </select>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        <div class="grid">
+            <div></div><div></div>
+            <button type="button" onclick="cancelForm()" class="secondary">Cancel</button>
+            <button type="submit">Update Schedule</button>
+        </div>
+    </form>
+</main>
+{%endblock%}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="container">
+
+    <h1>Welcome, {{ username }}</h1>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+            <th>Sunday</th>
+        </tr>
+        <tr>
+            <td>AM</td>
+            {% for day, shifts in schedule.items() %}
+            <td>
+                {% for shift in shifts %}
+                {% if shift.0[0] != '5' %}
+                {{ shift.0 }}: {{ shift.1 }}<br>
+                {%endif%}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>PM</td>
+            {% for day, shifts in schedule.items() %}
+            <td>
+                {% for shift in shifts %}
+                {% if shift.0[0] == '5' %}
+                {{ shift.0 }}: {{ shift.1 }}<br>
+                {%endif%}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+    </table>
+    </main>
+
+    <footer class="container">
+        
+        <div class="grid">
+            <div></div><div></div><div></div>
+            {% if username=='admin' %}
+            <form action="/newschedule" method="POST">
+                <button type="submit">Create Schedule</button>
+            </form>
+            {% else %}
+            <form action="/availability_form" method="GET">
+                <button type="submit">Enter Availability</button>
+            </form>
+            {%endif%}
+        </div>
+    </footer>
+
+
+{%endblock%}
