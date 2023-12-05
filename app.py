@@ -4,7 +4,6 @@ from models import User, Availability, db, Schedule, get_next_week_schedule
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
-import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -33,13 +32,40 @@ def index():
 def availability_form():
     return render_template('availability_form.html')
 
+# TODO: add dates to availabilites so users have to update every week
 @login_required
 @app.route('/submit_availability', methods=['POST'])
 def submit_availability(): 
     if request.method == 'POST':
         name = current_user.username
-        avail = Availability(name=name, sun=request.form['sunday-av'], mon=request.form['monday-av'], tue=request.form['tuesday-av'], wed=request.form['wednesday-av'], thur=request.form['thursday-av'], fri=request.form['friday-av'], sat=request.form['saturday-av'])
-        db.session.add(avail)
+
+        def get_selected_values(day):
+            return ','.join(request.form.getlist(f'{day}-av[]') if f'{day}-av[]' in request.form else [''])
+        
+        prevAvail = Availability.query.filter_by(name=name).first()
+        if prevAvail:
+            # Update existing record
+            prevAvail.sun = get_selected_values('sunday')
+            prevAvail.mon = get_selected_values('monday')
+            prevAvail.tue = get_selected_values('tuesday')
+            prevAvail.wed = get_selected_values('wednesday')
+            prevAvail.thur = get_selected_values('thursday')
+            prevAvail.fri = get_selected_values('friday')
+            prevAvail.sat = get_selected_values('saturday')
+        else:
+            # Create a new record
+            avail = Availability(
+                name=name,
+                sun=get_selected_values('sunday'),
+                mon=get_selected_values('monday'),
+                tue=get_selected_values('tuesday'),
+                wed=get_selected_values('wednesday'),
+                thur=get_selected_values('thursday'),
+                fri=get_selected_values('friday'),
+                sat=get_selected_values('saturday'),
+            )
+            db.session.add(avail)
+
         db.session.commit()
 
     return redirect(url_for('schedule_view')) 
@@ -66,11 +92,18 @@ def new_schedule():
         days_until_next_monday = (7 - current_date.weekday()) % 7
         next_monday = current_date + timedelta(days=days_until_next_monday)
 
+        prevEntry =  Schedule.query.filter(Schedule.date.between(next_monday, next_monday+timedelta(days=6))).all()
+        for row in prevEntry:
+            db.session.delete(row)
+        
+
+
         for d,day in enumerate(shifts.keys()):
             for availability in availabilities:
-                shift = request.form.get(f"{availability.name}_{day}")
+                empShifts = request.form.getlist(f"{availability.name}_{day}")
+                print(f'{shift} {day} {availability.name}') 
                 date = next_monday + timedelta(days=d)
-                if shift:
+                for shift in empShifts:
                     entry = Schedule(date=date, shift=shift, name=availability.name)
                     db.session.add(entry)
         

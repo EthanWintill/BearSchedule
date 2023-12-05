@@ -36,7 +36,7 @@ class Availability(db.Model):
 
 
 def get_next_week_schedule():
-    today = datetime.now()
+    today = datetime.now().date()
     next_week_start = today + timedelta(days=(7 - today.weekday()))
     next_week_end = next_week_start + timedelta(days=7)
     
@@ -44,6 +44,7 @@ def get_next_week_schedule():
         Schedule.date >= next_week_start,
         Schedule.date < next_week_end
     ).all()
+    print(next_week_schedule)
 
     # Process and format the schedule data as needed for display
     formatted_schedule = {

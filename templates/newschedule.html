@@ -13,9 +13,6 @@
 <main class="container-fluid">
     <div class="container">
         <h1>New Schedule</h1>
-        <p>{{availabilities}}</p>
-        <p>{{shifts}}</p>
-        <p>{{days}}</p>
     </div>
 
     <form method="POST">
@@ -31,17 +28,10 @@
                 <td>{{ availability }}</td>
                 {% for day in days %}
                 <td>
-                    <select name="{{ availability }}_{{ day }}" id="{{ availability }}_{{ day }}" onchange="updateDay('{{day}}','{{availability}}')">
-                        <option value="">Unassigned</option>
-                        <!-- {% for shift in shifts[day] %}
-                            {% if 'PM' in availabilities[availability][day] and shift[0]=='5' %} 
-                                <option  value="{{ shift }}" id="{{shift}}_{{loop.count}}">{{ shift }}</option>
-                            {% elif 'AM' in availabilities[availability][day] and shift[0]!='5'%}
-                                <option value="{{ shift }}" >{{ shift }}</option>
-                            {% endif %}
-                        {% endfor %} -->
-                    </select>
-                </td>
+                    <div id="{{ availability }}_{{ day }}">
+                        <!-- Checkboxes will be added dynamically here -->
+                    </div>
+                </td>                
                 {% endfor %}
             </tr>
             {% endfor %}
