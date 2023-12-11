@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/Users/mymac/Desktop/Career-Stuff/Projects/BearSchedule') 
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from models import User, Availability, db, Schedule, get_next_week_schedule
@@ -21,6 +23,10 @@ with app.app_context():
     # admin = User(id = 0, username='admin', password_hash=generate_password_hash('adminpassword'), phone = 0)
     # db.session.add(admin)
     # db.session.commit()
+
+@app.route('/test')
+def test():
+    return 'test passed'
 
 # Route for the login page
 @app.route('/', methods=['GET', 'POST'])
