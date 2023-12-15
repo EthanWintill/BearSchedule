@@ -64,3 +64,33 @@ def get_next_week_schedule():
         formatted_schedule[day].sort(key=lambda x: x[0])
     return formatted_schedule
 
+def write_availability_to_database(name: str, avail: dict):
+    prevAvail = Availability.query.filter_by(name=name).first()
+    if prevAvail:
+        # Update existing record
+        prevAvail.sun = avail['sunday']
+        prevAvail.mon = avail['monday']
+        prevAvail.tue = avail['tuesday']
+        prevAvail.wed = avail['wednesday']
+        prevAvail.thur = avail['thursday']
+        prevAvail.fri = avail['friday']
+        prevAvail.sat = avail['saturday']
+    else:
+        # Create a new record
+        avail = Availability(
+            name=name,
+            sun=avail['sunday'],
+            mon=avail['monday'],
+            tue=avail['tuesday'],
+            wed=avail['wednesday'],
+            thur=avail['thursday'],
+            fri=avail['friday'],
+            sat=avail['saturday'],
+        )
+        db.session.add(avail)
+
+    db.session.commit()
+
+def get_name_from_number(number: str):
+    record = User.query.filter_by(phone = number).first()
+    return None if record is None else str(record.username)
