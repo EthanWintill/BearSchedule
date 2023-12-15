@@ -31,6 +31,10 @@ with app.app_context():
     # db.session.add(admin)
     # db.session.commit()
 
+@app.route('/test')
+def test():
+    return 'test passed'
+
 # Route for the login page
 @app.route('/', methods=['GET', 'POST'])
 def index():
