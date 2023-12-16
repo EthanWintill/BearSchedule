@@ -4,9 +4,11 @@ from openai import OpenAI
 from twilio import rest
 import os
 import json
-
-
 from models import get_name_from_number, write_availability_to_database
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 texts = Blueprint('texts',__name__)
 
@@ -39,6 +41,7 @@ def sms():
 
     sender_name = get_name_from_number(sender_number)
     write_availability_to_database(sender_name, gpt_resp)
+
     reply = "\t\n".join([str(day)+' '+str(gpt_resp[day]) for day in gpt_resp])
     reply = f'\n\nUpdated your availability to:\n {reply}' #f"{gpt_resp['coax']}" if 'coax' in gpt_resp else 'Availability recieved!'
 

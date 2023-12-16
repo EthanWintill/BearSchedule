@@ -4,7 +4,6 @@ from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
 from texts.texts import texts
-from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -16,7 +15,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 init_auth_routes(login_manager)
 
-load_dotenv()
 
 # Create the database tables
 with app.app_context():
