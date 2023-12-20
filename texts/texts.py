@@ -40,11 +40,15 @@ def sms():
     print(completion.choices)
 
     sender_name = get_name_from_number(sender_number)
-    write_availability_to_database(sender_name, gpt_resp)
 
     reply = "\t\n".join([str(day)+' '+str(gpt_resp[day]) for day in gpt_resp])
-    reply = f'\n\nUpdated your availability to:\n {reply}' #f"{gpt_resp['coax']}" if 'coax' in gpt_resp else 'Availability recieved!'
-
+    try:
+        write_availability_to_database(sender_name, gpt_resp)
+        reply = f'\n\nUpdated your availability to:\n {reply}' #f"{gpt_resp['coax']}" if 'coax' in gpt_resp else 'Availability recieved!'
+    except:
+        reply = f'Sorry, I caused an error, please try rewording you availability\n\nREFERENCE\n {reply}'
+        print(reply)
+        
     resp = MessagingResponse()  
     resp.message(reply)
 
