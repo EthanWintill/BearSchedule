@@ -24,9 +24,11 @@ with app.app_context():
     # db.session.add(admin)
     # db.session.commit()
 
-@app.route('/test')
+@app.route('/health')
 def test():
-    return 'test passed'
+    #insert health checks here?
+    return jsonify({'status': 'ok'}), 200
+
 
 # Route for the login page
 @app.route('/', methods=['GET', 'POST'])
