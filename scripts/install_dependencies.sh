@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pip install -r requirements.txt
+pip install -r home/ec2-user/BearSchedule/requirements.txt
