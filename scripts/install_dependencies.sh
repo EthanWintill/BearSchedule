@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo 'who was in paris?'
+pip install -r requirements.txt
