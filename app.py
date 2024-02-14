@@ -31,7 +31,7 @@ def health():
 
 @app.route('/test')
 def test():
-    return 'test passed!'
+    return 'who was in paris?!'
 
 # Route for the login page
 @app.route('/', methods=['GET', 'POST'])
