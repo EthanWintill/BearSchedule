@@ -1,10 +1,20 @@
 let needed_shifts = JSON.parse(window.needed_shifts);
 let avails = JSON.parse(window.avails);
 let shifts = updateShifts(needed_shifts, avails);
+let days = Object.keys(needed_shifts);
+let names = Object.keys(avails);
 console.log(shifts);
 
 document.addEventListener('DOMContentLoaded', function () {
     populateTable(shifts);
+    duplicateFilter();
+
+    const checkboxWrapper = document.querySelector('.checkbox-wrapper');
+    const checkbox = checkboxWrapper.querySelector('input[type="checkbox"]');
+
+    checkboxWrapper.addEventListener('click', function () {
+        checkbox.checked = !checkbox.checked;
+    });
 });
 
 
@@ -47,10 +57,16 @@ function updateShifts(needed_shifts, avails) {
 }
 
 function addShiftOption(shift, name, day) {
-    let parent = document.getElementById(name + '_' + day);
+    let parent;
+    if (shift[0]=='5') {
+        parent = document.getElementById(name + '_' + day + '_PM' );        
+    }else{
+        parent = document.getElementById(name + '_' + day + '_AM' );        
+    }
     let checkbox = document.createElement('input');
     let div = document.createElement('div');
-    div.setAttribute('class', `${name}_${day}_${shift}_div`);
+    div.setAttribute('onclick', "toggleCheckbox(this)")
+    div.setAttribute('class', `${name}_${day}_${shift} checkbox-wrapper`);
     checkbox.type = 'checkbox';
     checkbox.name = `${name}_${day}`;
     checkbox.value = `${shift}`
@@ -67,7 +83,7 @@ function addShiftOption(shift, name, day) {
 }
 
 function deleteShiftOption(shift, name, day) {
-    const divs = document.getElementsByClassName(`${name}_${day}_${shift}_div`);
+    const divs = document.getElementsByClassName(`${name}_${day}_${shift}`);
 
     // Loop through the divs
     for (let i = 0; i < divs.length; i++) {
@@ -76,7 +92,7 @@ function deleteShiftOption(shift, name, day) {
         // Check if the div does not contain a checkbox that is checked
         const checkbox = div.querySelector('input[type="checkbox"]:checked');
 
-        if (!checkbox) {
+        if (!div.classList.contains('checked')) {
             // Remove the div if no checked checkbox is found
             div.remove();
 
@@ -88,28 +104,30 @@ function deleteShiftOption(shift, name, day) {
 }
 
 function handleCheckboxChange(checkbox) {
-    const [name, day, shift] = checkbox.id.split('_');
-    if (checkbox.checked) {
-        console.log('Checkbox ' + checkbox.id + ' is checked!');
-        for (const person of Object.keys(shifts[day])) {
-            if (person == name) { continue; }
-            index = shifts[day][person].indexOf(shift)
-            if (index != -1) {
-                shifts[day][person].splice(index, 1)
-                deleteShiftOption(shift, person, day);
-            }
-        }
-    } else {
-        console.log('Checkbox is unchecked!');
-        for (const person of Object.keys(shifts[day])) {
-            if (person == name) { continue; }
-            if (checkAvail(shift, person, day)) {
-                shifts[day][person].push(shift);
-                addShiftOption(shift, person, day);
-            }
-        }
-    }
 
+    
+    // const [name, day, shift] = checkbox.id.split('_');
+    // if (checkbox.checked) {
+    //     console.log('Checkbox ' + checkbox.id + ' is checked!');
+    //     for (const person of Object.keys(shifts[day])) {
+    //         if (person == name) { continue; }
+    //         index = shifts[day][person].indexOf(shift)
+    //         if (index != -1) {
+    //             shifts[day][person].splice(index, 1)
+    //             deleteShiftOption(shift, person, day);
+    //         }
+    //     }
+    // } else {
+    //     console.log('Checkbox ' + checkbox.id + 'is unchecked!');
+    //     for (const person of Object.keys(shifts[day])) {
+    //         if (person == name) { continue; }
+    //         if (checkAvail(shift, person, day)) {
+    //             shifts[day][person].push(shift);
+    //             addShiftOption(shift, person, day);
+    //         }
+    //     }
+    // }
+    // duplicateFilter();
 }
 
 function checkAvail(shift, name, day) {
@@ -120,6 +138,50 @@ function updateDay(day, name) {
     shift = document.getElementById(name + '_' + day).value
 
 }
+
+
+function duplicateFilter(){
+
+    for (let day of days) {
+        for (let person of names) {
+            for (let shift of shifts[day][person]){
+                shift_options = document.getElementsByClassName(person+'_'+day+'_'+shift);
+                shift_options[0].style.removeProperty('display');
+                for(i=1; i<shift_options.length; i++){
+                    shift_options[i].style.display = 'none';
+                }                
+            }
+        }
+    }
+}
+
+function toggleCheckbox(element) {
+    element.classList.toggle('checked');
+    const [name, day, shift] = element.className.split(' ')[0].split('_');
+    if (element.classList.contains('checked')) {
+        console.log('Checkbox ' + element.className + ' is checked!');
+        for (const person of names) {
+            if (person == name) { continue; }
+            index = shifts[day][person].indexOf(shift)
+            if (index != -1) {
+                shifts[day][person].splice(index, 1)
+                deleteShiftOption(shift, person, day);
+            }
+        }
+    } else {
+        console.log('Checkbox is unchecked!');
+        for (const person of names) {
+            if (person == name) { continue; }
+            if (checkAvail(shift, person, day)) {
+                shifts[day][person].push(shift);
+                addShiftOption(shift, person, day);
+            }
+        }
+    }
+    duplicateFilter();
+}
+
+
 
 function computeSchedule(shiftsNeeded, employeesAvailabilities) {
     fetch('/optimize-schedule', {

@@ -1,0 +1,56 @@
+
+.checkbox-wrapper {
+    display: inline-block;
+    border: 1px solid #ccc;
+    cursor: pointer; /* Change cursor to pointer to indicate clickability */
+}
+
+.checkbox-wrapper:hover {
+    background-color: #f0f0f0; /* Change background color on hover for visual feedback */
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    display: none; /* Hide the checkbox itself */
+}
+
+.checkbox-wrapper label {
+    display: block; /* Make label a block-level element */
+    position: relative;
+}
+
+.checkbox-wrapper label::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 1px solid #ccc;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked + label::before {
+    background-color: #007bff; /* Change color when checkbox is checked */
+    border-color: #007bff; /* Change border color when checkbox is checked */
+}
+
+.checkbox-wrapper.checked {
+    background-color: hsl(195, 85%, 41%);
+}
+
+
+/*
+.checkbox-wrapper input[type="checkbox"]:checked + label::after {
+    content: "✔"; 
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff; 
+    text-align: center;
+    line-height: 14px; 
+} */

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from models import Availability, db, Schedule, get_next_week_schedule, write_availability_to_database, get_next_week_availabilites, get_avail_of, get_next_monday
+from models import Availability, db, Schedule, get_schedule_for_week, write_availability_to_database, get_next_week_availabilites, get_avail_of, get_next_monday
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
@@ -40,7 +40,6 @@ def index():
 def availability_form():
     return render_template('availability_form.html')
 
-# TODO: add dates to availabilites so users have to update every week
 @login_required
 @app.route('/submit_availability', methods=['POST'])
 def submit_availability(): 
@@ -77,9 +76,7 @@ def new_schedule():
 
     if request.method=='POST':
 
-        current_date = datetime.now().date()
-        days_until_next_monday = (7 - current_date.weekday()) % 7
-        next_monday = current_date + timedelta(days=days_until_next_monday)
+        next_monday = get_next_monday()
 
         prevEntry =  Schedule.query.filter(Schedule.date.between(next_monday, next_monday+timedelta(days=6))).all()
         for row in prevEntry:
@@ -98,7 +95,7 @@ def new_schedule():
         
         db.session.commit()
 
-        schedule = get_next_week_schedule()
+        schedule = get_schedule_for_week(offset=1)
         text_schedule(schedule)
 
     
@@ -107,13 +104,17 @@ def new_schedule():
 
 # Route for the schedule_view page
 @login_required
+@app.route('/schedule_view/<week_offset>')
 @app.route('/schedule_view')
-def schedule_view():
+def schedule_view(week_offset=0):
     username = current_user.username
-    schedule = get_next_week_schedule()
+    schedule = get_schedule_for_week(int(week_offset))
     user_avail = get_avail_of(current_user.username)
-    del user_avail['week_of']
-    return render_template('schedule_view.html', username=username, schedule=schedule, user_avail=user_avail, next_monday = get_next_monday())
+    if user_avail:
+        del user_avail['week_of']
+    else:
+        user_avail = {}
+    return render_template('schedule_view.html', username=username, schedule=schedule, user_avail=user_avail, next_monday = get_next_monday()+timedelta(7*int(week_offset)-7))
 
 @app.route('/optimize-schedule', methods=['POST'])
 def optimize_schedule():

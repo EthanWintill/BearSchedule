@@ -6,17 +6,13 @@
 
     <h1>Welcome, {{ username }}</h1>
 
-    <h3>Week of {{next_monday.strftime("%B %d, %Y")  }}</h3>
+    <h3>Schedule for week of {{next_monday.strftime("%B %d, %Y")  }}</h3>
     <table>
         <tr>
             <th>Shift</th>
-            <th>Monday</th>
-            <th>Tuesday</th>
-            <th>Wednesday</th>
-            <th>Thursday</th>
-            <th>Friday</th>
-            <th>Saturday</th>
-            <th>Sunday</th>
+            {% for day, shifts in schedule.items() %}
+            <th>{{day}}</th>
+            {% endfor %}
         </tr>
         <tr>
             <td>AM</td>
@@ -43,8 +39,8 @@
             {% endfor %}
         </tr>
     </table>
-
-    <h3>Current Availability</h3>
+    {% if username != 'admin' %}
+    <h3>Next Week's Availability</h3>
     <table>
 <tr>
             <th>Name</th>
@@ -62,6 +58,7 @@
             {% endfor %}
         </tr>
     </table>
+    {% endif %}
 
     </main>
 

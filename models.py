@@ -23,7 +23,7 @@ class Schedule(db.Model):
 
 class Availability(db.Model):
     name = db.Column(db.String(50), nullable=False, primary_key=True)
-    week_of = db.Column(db.String(20), nullable=False)
+    week_of = db.Column(db.String(20), nullable=False, primary_key=True)
     sun = db.Column(db.String(10))
     mon = db.Column(db.String(10))
     tue = db.Column(db.String(10))
@@ -43,31 +43,23 @@ def get_next_week_availabilites():
 
 
 
-def get_next_week_schedule():
-    next_week_start = get_next_monday()
-    next_week_end = next_week_start + timedelta(days=7)
+def get_schedule_for_week(offset=0):
+    week_end = get_next_monday()+timedelta(days=offset*7)
+    week_start = week_end+timedelta(days=-7)
     
     next_week_schedule = Schedule.query.filter(
-        Schedule.date >= next_week_start,
-        Schedule.date < next_week_end
+        Schedule.date >= week_start,
+        Schedule.date < week_end
     ).all()
     print(next_week_schedule)
 
     # Process and format the schedule data as needed for display
-    formatted_schedule = {
-        'Monday': [],
-        'Tuesday': [],
-        'Wednesday': [],
-        'Thursday': [],
-        'Friday': [],
-        'Saturday': [],
-        'Sunday': [],
-    }
+    formatted_schedule = {}
 
     # Iterate through the schedule data and organize it by day and shift
     for entry in next_week_schedule:
-        day, shift, user = datetime.strptime(entry.date, '%Y-%m-%d').strftime('%A'), entry.shift, entry.name
-        formatted_schedule[day].append([shift, user])
+        day, shift, user = datetime.strptime(entry.date, '%Y-%m-%d').strftime('%a-%d'), entry.shift, entry.name
+        formatted_schedule.setdefault(day,[]).append([shift, user])
         formatted_schedule[day].sort(key=lambda x: x[0])
     return formatted_schedule
 
@@ -108,5 +100,5 @@ def get_avail_of(name: str):
     next_monday = get_next_monday()
     avail = Availability.query.filter_by(week_of = next_monday, name = name).first()
     print(avail)
-    return avail.as_dict()
+    return avail.as_dict() if avail else None
     

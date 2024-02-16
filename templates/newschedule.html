@@ -28,7 +28,9 @@
                 <td>{{ availability }}</td>
                 {% for day in days %}
                 <td>
-                    <div id="{{ availability }}_{{ day }}">
+                    <div id="{{ availability }}_{{ day }}" class="grid">
+                        <div id="{{ availability }}_{{ day }}_AM"></div>
+                        <div id="{{ availability }}_{{ day }}_PM"></div>
                         <!-- Checkboxes will be added dynamically here -->
                     </div>
                 </td>                
