@@ -1,3 +1,6 @@
+
+
+
 let needed_shifts = JSON.parse(window.needed_shifts);
 let avails = JSON.parse(window.avails);
 let shifts = updateShifts(needed_shifts, avails);

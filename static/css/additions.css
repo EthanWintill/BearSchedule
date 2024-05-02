@@ -1,4 +1,4 @@
-:root{
+:root {
     --checkbox-width: 3.5em
 }
 
@@ -7,12 +7,12 @@
     display: inline-block;
     border: 2px solid #374956;
     border-radius: 0.25em;
-    cursor: pointer; 
+    cursor: pointer;
     width: var(--checkbox-width);
 }
 
 .checkbox-div:hover {
-    background-color: #f0f0f0; 
+    background-color: #f0f0f0;
 }
 
 .checkbox-div label {
@@ -24,43 +24,60 @@
     background-color: hsl(195, 85%, 41%);
 }
 
-td, th{
-    min-width: 7em; 
+td,
+th {
+    min-width: 7em;
     max-width: 9em;
     border-inline: 1px solid #1f2d38;
     padding-inline: .75em;
     /* border-bottom: none; */
 }
 
-.avail-select-wrapper h1{
+.avail-select-wrapper h1 {
     height: 30px;
     display: inline;
 }
 
-.avail-select-wrapper select{
+.avail-select-wrapper select {
     width: 25%;
     display: inline;
+}
+
+.staff-dropdown-shifts {
+    display: inline;
+    padding: 1px;
+    font-size: 0.875em;
+    margin-bottom: 11px;
 }
 
 .wrapper-nxt-prv {
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-  .wrapper-nxt-prv button {
+}
+
+.wrapper-nxt-prv button {
     padding: 10px;
     max-width: fit-content;
     margin-inline: 1rem;
-  }
-  .wrapper-nxt-prv h1 {
-    margin-bottom: auto;
-  }
+}
 
-.scheduled-shift{
+.wrapper-nxt-prv h1 {
+    margin-bottom: auto;
+}
+
+.scheduled-shift, .unscheduled-shift{
     margin-bottom: 11px;
 }
 
-  .scheduled-shift:hover{
+.red:hover {
     background-color: #fe6666;
     border: 1px solid #fbfbfb;
-  }
+    margin-bottom: 9px;
+}
+
+.unscheduled-shift:hover {
+    background-color: #66feb7;
+    border: 1px solid #fbfbfb;
+    margin-bottom: 9px;
+}

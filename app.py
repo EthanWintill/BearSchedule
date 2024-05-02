@@ -134,11 +134,23 @@ def schedule_view(week_offset=0):
     username = current_user.username
     schedule = get_schedule_for_week(int(week_offset))
     user_avail = get_avail_of(current_user.username)
+    users = [user.username for user in User.query.all()]
+
+    needed_shifts = {
+    'mon': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
+    'tue': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
+    'wed': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
+    'thur': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
+    'fri': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL' ,'5-CL'],
+    'sat': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL' ,'5-CL'],
+    'sun': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL'],
+    }
     if user_avail:
         del user_avail['week_of']
     else:
         user_avail = {}
-    return render_template('schedule_view.html', username=username, schedule=schedule, user_avail=user_avail, next_monday = get_next_monday()+timedelta(7*int(week_offset)-7))
+    print(schedule)
+    return render_template('schedule_view.html', username=username, schedule=schedule, needed_shifts=needed_shifts ,user_avail=user_avail, names = users, next_monday = get_next_monday()+timedelta(7*int(week_offset)-7))
 
 @app.route('/optimize-schedule', methods=['POST'])
 def optimize_schedule():

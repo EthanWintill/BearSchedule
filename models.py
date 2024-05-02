@@ -109,7 +109,7 @@ def get_avail_of(name: str):
 
 def removeShift(name: str, day: str, shift: str):
     this_monday = get_next_monday()-timedelta(days=7)
-    entry = Schedule.query.filter_by(name=name, date=this_monday+timedelta(days=['Mon','Tue','Wed','Thur','Fri','Sat','Sun'].index(day)), shift=shift).first()
+    entry = Schedule.query.filter_by(name=name, date=this_monday+timedelta(days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].index(day)), shift=shift).first()
     db.session.delete(entry)
     db.session.commit()
 

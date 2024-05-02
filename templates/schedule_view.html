@@ -1,8 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-<script src="{{ url_for('static', filename='js/schedule_view.js') }}"></script>
+{% block script %}
+<script>
+    window.needed_shifts = ('{{ needed_shifts | tojson | safe }}');
+    window.schedule = ('{{ schedule | tojson | safe }}');
+    window.names = ('{{ names | tojson | safe }}');
+    window.username = ('{{ username | tojson | safe }}');
+</script>
+<!-- <script src="{{ url_for('static', filename='js/utils.js') }}" type="module"></script> -->
+<script src="{{ url_for('static', filename='js/schedule_view.js') }}" ></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}" ></script>
+
+{% if username=='admin' %}
+<script src="{{ url_for('static', filename='js/schedule_view_manager.js') }}" ></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manager_additions.css') }}">
+{%else%}
+<script src="{{ url_for('static', filename='js/schedule_view_staff.js') }}" ></script>
+{%endif%}
+{%endblock%}
 <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/additions.css') }}"> -->
 
 
@@ -23,10 +39,10 @@
             <tr>
                 <td>AM</td>
                 {% for day, shifts in schedule.items() %}
-                <td>
+                <td id="{{day}}_AM">
                     {% for shift in shifts %}
                     {% if shift.0[0] != '5' %}
-                    <div class="scheduled-shift" onclick="removeShift('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{ shift.0 }}: {{ shift.1 }}</div>
+                    <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}}" id = "{{day}}_{{shift.0}}_{{shift.1}}" onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{ shift.0 }}: {{ shift.1 }}</div>
                     {%endif%}
                     {% endfor %}
                 </td>
@@ -35,10 +51,10 @@
             <tr>
                 <td>PM</td>
                 {% for day, shifts in schedule.items() %}
-                <td>
+                <td id="{{day}}_PM">
                     {% for shift in shifts %}
                     {% if shift.0[0] == '5' %}
-                    <div class="scheduled-shift" onclick="removeShift('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{ shift.0 }}: {{ shift.1 }}</div>
+                    <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}}" id = "{{day}}_{{shift.0}}_{{shift.1}}" onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{ shift.0 }}: {{ shift.1 }}</div>
                     {%endif%}
                     {% endfor %}
                 </td>
@@ -69,7 +85,8 @@
         </tr>
     </table>
     {% endif %}
-
+  
+  <!-- Select -->
 </main>
 
 <footer class="container">
