@@ -4,9 +4,22 @@
 <script src="static/js/availability.js"></script>
 
 <main class="container">
-    <h1>Enter Availability:</h1>
-    
+
     <form action="{{ url_for('submit_availability') }}" method="POST">
+
+    {% if username == "admin" %}
+    <div class="avail-select-wrapper">
+        <h1>Enter Availability for:</h1>
+        <select name="avail-for">
+            {% for name in names %}
+            <option value="{{name}}">{{name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% else %}
+    <h1>Enter Availability:</h1>
+    {% endif %}
+
         <table>
             <thead>
                 <tr>
@@ -50,10 +63,11 @@
                         <label><input type="checkbox" name="sunday-av[]" value="PM"> PM</label>
                     </td>
                 </tr>
-            </tbody>            
+            </tbody>
         </table>
         <div class="grid">
-            <div></div><div></div>
+            <div></div>
+            <div></div>
             <button type="button" class="secondary" onclick="cancelForm()">Cancel</button>
             <button type="submit">Submit</button>
         </div>
@@ -62,19 +76,3 @@
 
 
 {%endblock%}
-
-<!--         
-        <label>Sunday:</label>
-        <input type="text" id="sunday-av" name="sunday-av" required><br>
-        <label>Monday:</label>
-        <input type="text" id="monday-av" name="monday-av" required><br>
-        <label>Tuesday:</label>
-        <input type="text" id="tuesday-av" name="tuesday-av" required><br>
-        <label>Wednesday:</label>
-        <input type="text" id="wednesday-av" name="wednesday-av" required><br>
-        <label>Thursday:</label>
-        <input type="text" id="thursday-av" name="thursday-av" required><br>
-        <label>Friday:</label>
-        <input type="text" id="friday-av" name="friday-av" required><br>
-        <label>Saturday:</label>
-        <input type="text" id="saturday-av" name="saturday-av" required><br> -->

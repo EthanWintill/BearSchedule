@@ -41,7 +41,11 @@ def get_next_week_availabilites():
         Availability.week_of == next_week_start).all()
     return next_week_avails
 
-
+def get_avails_for_week(week_offset=0):
+    week_start = get_next_monday()+timedelta(days=week_offset*7-7)
+    week_avails = Availability.query.filter(
+        Availability.week_of == week_start).all()
+    return week_avails
 
 def get_schedule_for_week(offset=0):
     week_end = get_next_monday()+timedelta(days=offset*7)
@@ -102,3 +106,15 @@ def get_avail_of(name: str):
     print(avail)
     return avail.as_dict() if avail else None
     
+
+def removeShift(name: str, day: str, shift: str):
+    this_monday = get_next_monday()-timedelta(days=7)
+    entry = Schedule.query.filter_by(name=name, date=this_monday+timedelta(days=['Mon','Tue','Wed','Thur','Fri','Sat','Sun'].index(day)), shift=shift).first()
+    db.session.delete(entry)
+    db.session.commit()
+
+def addShift(name: str, day: str, shift: str):
+    this_monday = get_next_monday()-timedelta(days=7)
+    entry = Schedule(date=this_monday+timedelta(days=['mon','tue','wed','thur','fri','sat','sun'].index(day)), shift=shift, name=name)
+    db.session.add(entry)
+    db.session.commit()

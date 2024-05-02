@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from models import Availability, db, Schedule, get_schedule_for_week, write_availability_to_database, get_next_week_availabilites, get_avail_of, get_next_monday
+from models import User, db, Schedule, get_schedule_for_week, write_availability_to_database, get_avails_for_week, get_avail_of, get_next_monday, removeShift, addShift
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
 from texts.texts import texts, text_schedule
-from pulp import LpVariable, LpProblem, lpSum, LpMinimize, LpInteger
 
 
 app = Flask(__name__)
@@ -38,13 +37,18 @@ def index():
 @login_required
 @app.route('/availability_form', methods=['GET'])
 def availability_form():
-    return render_template('availability_form.html')
+    users = [user.username for user in User.query.all()]
+    return render_template('availability_form.html', username = current_user.username, names = users)
 
 @login_required
 @app.route('/submit_availability', methods=['POST'])
 def submit_availability(): 
     if request.method == 'POST':
-        name = current_user.username
+
+        if 'avail-for' in request.form:
+            name = request.form['avail-for']
+        else:
+            name = current_user.username
 
         def get_selected_values(day):
             return ','.join(request.form.getlist(f'{day}-av[]') if f'{day}-av[]' in request.form else [''])
@@ -59,8 +63,30 @@ def submit_availability():
     return redirect(url_for('schedule_view')) 
 
 @login_required
+@app.route('/removeShift', methods=['DELETE'])
+def removeShiftRoute():
+    data = request.get_json()
+    day, shift, name = data['day'][:3], data['shift'], data['name']
+    try:
+        removeShift(name, day, shift)
+    except Exception as e:
+        print(f"Error removing shift: {e}")
+        return 'Error! Probably cant find shift', 500
+    return '', 204
+
+@login_required
+@app.route('/addShift', methods=['POST'])
+def addShiftRoute():
+    data = request.get_json()
+    day, shift, name = data['day'], data['shift'], data['name'] 
+    addShift(name, day ,shift)
+    return 'Success', 200
+
+@login_required
+@app.route('/newschedule/<week_offset>', methods=['GET','POST'])
 @app.route('/newschedule', methods=['GET','POST'])
-def new_schedule():
+def new_schedule(week_offset=0):
+    week_offset = int(week_offset)+1 #hack to get default to be next week while using utils.modifyRouteParam()
     shifts = {
     'mon': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
     'tue': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
@@ -71,23 +97,21 @@ def new_schedule():
     'sun': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL'],
     }
 
-
-    availabilities = get_next_week_availabilites()
+    first_monday = get_next_monday()+timedelta(days=week_offset*7-7)
+    availabilities = get_avails_for_week(week_offset)
 
     if request.method=='POST':
 
-        next_monday = get_next_monday()
-
-        prevEntry =  Schedule.query.filter(Schedule.date.between(next_monday, next_monday+timedelta(days=6))).all()
+        prevEntry =  Schedule.query.filter(Schedule.date.between(first_monday, first_monday+timedelta(days=6))).all()
         for row in prevEntry:
             db.session.delete(row)
         
 
-
+        #write shifts into db
         for d,day in enumerate(shifts.keys()):
             for availability in availabilities:
                 empShifts = request.form.getlist(f"{availability.name}_{day}")
-                date = next_monday + timedelta(days=d)
+                date = first_monday + timedelta(days=d)
                 for shift in empShifts:
                     entry = Schedule(date=date, shift=shift, name=availability.name)
                     db.session.add(entry)
@@ -95,12 +119,12 @@ def new_schedule():
         
         db.session.commit()
 
-        schedule = get_schedule_for_week(offset=1)
+        schedule = get_schedule_for_week(offset=week_offset)
         text_schedule(schedule)
 
     
     json_availabilities = {avail.name:avail.as_dict() for avail in availabilities}
-    return render_template('newschedule.html', availabilities=json_availabilities, days=shifts.keys(), shifts=shifts)
+    return render_template('newschedule.html', availabilities=json_availabilities, days=shifts.keys(), shifts=shifts, week_of=first_monday)
 
 # Route for the schedule_view page
 @login_required
@@ -123,46 +147,58 @@ def optimize_schedule():
     shifts_needed = data.get('shiftsNeeded', {})
     employees_availabilities = data.get('employeesAvailabilities', {})
     print(shifts_needed,employees_availabilities)
-    # Perform linear programming optimization using pulp
     optimal_schedule = perform_optimization(shifts_needed, employees_availabilities)
 
     return jsonify(optimal_schedule)
 
 
-def perform_optimization(shifts_needed, employees_availabilities):
-    lp = LpProblem("Employee_Scheduling", LpMinimize)
+def perform_optimization(shifts_needed, staff_availabilities):
+    days_of_week = list(shifts_needed.keys())
+    schedule = {day: {emp:[] for emp in staff_availabilities} for day in days_of_week}    
+    shift_counts = {emp: 0 for emp in staff_availabilities}
+    needed_shifts_not_empty = True
 
-    # Define variables
-    variables = {(employee, day, shift): LpVariable(f"{employee}_{day}_{shift}", 0, 1, LpInteger)
-                 for employee in employees_availabilities
-                 for day in shifts_needed
-                 for shift in shifts_needed[day]}
+    tightest_day = 'mon'
+    while len(shifts_needed[tightest_day])==0:
+        tightest_day = days_of_week[(days_of_week.index(tightest_day)+1)%7]    
+    tightest_shift = shifts_needed[tightest_day][0]
 
-    # Objective function: minimize the total assignments
-    lp += lpSum(variables.values())
+    while(needed_shifts_not_empty):
+        for day in days_of_week: 
+            for shift in shifts_needed[day]:
+                if len(staff_avail_for_shift(day,shift, staff_availabilities))<len(staff_avail_for_shift(tightest_day,tightest_shift, staff_availabilities)):
+                    tightest_day, tightest_shift = day, shift
 
-    # Constraints
-    # Each employee can be assigned at most one shift per day
-    for employee in employees_availabilities:
-        for day in shifts_needed:
-            lp += lpSum(variables[employee, day, shift] for shift in shifts_needed[day]) <= 1
+        shift_assignment = min((shift_counts[name], name) for name in staff_avail_for_shift(tightest_day, tightest_shift, staff_availabilities))[1]
+        
+        shift_counts[shift_assignment]+=1 #update assignments
 
-    # Each shift must be assigned to exactly one employee
-    for day in shifts_needed:
-        for shift in shifts_needed[day]:
-            lp += lpSum(variables[employee, day, shift] for employee in employees_availabilities) == 1
+        #add shift into schedule
+        schedule[tightest_day][shift_assignment]+=[tightest_shift]
+            
 
-    # Solve the problem
-    lp.solve()
+        if tightest_shift[0]=='5': #update availability to reflect shift assignment
+            staff_availabilities[shift_assignment][tightest_day]=staff_availabilities[shift_assignment][tightest_day][:-2]
+        else:
+            staff_availabilities[shift_assignment][tightest_day]=staff_availabilities[shift_assignment][tightest_day][2:]
 
-    # Extract the optimal schedule
-    optimal_schedule = {day: {shift: [] for shift in shifts_needed[day]} for day in shifts_needed}
-    for variable, value in variables.items():
-        if value.varValue == 1:
-            employee, day, shift = variable
-            optimal_schedule[day][shift].append(employee)
+        shifts_needed[tightest_day].remove(tightest_shift)#update needed shifts
+        
+        needed_shifts_not_empty = False
+        for day in days_of_week: 
+            if len(shifts_needed[day])>0:
+                tightest_day, tightest_shift = day, shifts_needed[day][0]
+                needed_shifts_not_empty = True
+                break
 
-    return optimal_schedule
+    return schedule
+    
+
+def staff_avail_for_shift(day, shift, staff_availabilities):
+    return [emp for emp in staff_availabilities if checkAvail(shift, emp, day, staff_availabilities)]
+
+def checkAvail(shift, name, day, avails):
+    return 'AM' in avails[name][day] and shift[0] != '5' or 'PM' in avails[name][day] and shift[0] == '5'
 
 
 

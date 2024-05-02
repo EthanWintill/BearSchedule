@@ -1,56 +1,66 @@
+:root{
+    --checkbox-width: 3.5em
+}
 
-.checkbox-wrapper {
+
+.checkbox-div {
     display: inline-block;
-    border: 1px solid #ccc;
-    cursor: pointer; /* Change cursor to pointer to indicate clickability */
+    border: 2px solid #374956;
+    border-radius: 0.25em;
+    cursor: pointer; 
+    width: var(--checkbox-width);
 }
 
-.checkbox-wrapper:hover {
-    background-color: #f0f0f0; /* Change background color on hover for visual feedback */
+.checkbox-div:hover {
+    background-color: #f0f0f0; 
 }
 
-.checkbox-wrapper input[type="checkbox"] {
-    display: none; /* Hide the checkbox itself */
+.checkbox-div label {
+    margin-bottom: 0px;
 }
 
-.checkbox-wrapper label {
-    display: block; /* Make label a block-level element */
-    position: relative;
-}
 
-.checkbox-wrapper label::before {
-    content: "";
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border: 1px solid #ccc;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.checkbox-wrapper input[type="checkbox"]:checked + label::before {
-    background-color: #007bff; /* Change color when checkbox is checked */
-    border-color: #007bff; /* Change border color when checkbox is checked */
-}
-
-.checkbox-wrapper.checked {
+.checkbox-div.checked {
     background-color: hsl(195, 85%, 41%);
 }
 
+td, th{
+    min-width: 7em; 
+    max-width: 9em;
+    border-inline: 1px solid #1f2d38;
+    padding-inline: .75em;
+    /* border-bottom: none; */
+}
 
-/*
-.checkbox-wrapper input[type="checkbox"]:checked + label::after {
-    content: "✔"; 
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #fff; 
-    text-align: center;
-    line-height: 14px; 
-} */
+.avail-select-wrapper h1{
+    height: 30px;
+    display: inline;
+}
+
+.avail-select-wrapper select{
+    width: 25%;
+    display: inline;
+}
+
+.wrapper-nxt-prv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .wrapper-nxt-prv button {
+    padding: 10px;
+    max-width: fit-content;
+    margin-inline: 1rem;
+  }
+  .wrapper-nxt-prv h1 {
+    margin-bottom: auto;
+  }
+
+.scheduled-shift{
+    margin-bottom: 11px;
+}
+
+  .scheduled-shift:hover{
+    background-color: #fe6666;
+    border: 1px solid #fbfbfb;
+  }
