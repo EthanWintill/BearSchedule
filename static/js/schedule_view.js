@@ -31,6 +31,7 @@ function AddUnassignedShift(day, shift) {
 //Database manipulation
 function removeShift(name, day, shift) {
     //send a request to the server to remove the shift
+    let week_offset = parseInt(window.location.href.split('/').pop()) // Nan if no route param
     fetch('/removeShift',
         {
             method: 'DELETE',
@@ -39,8 +40,9 @@ function removeShift(name, day, shift) {
             },
             body: JSON.stringify({
                 "name": name,
-                "day": day,
-                "shift": shift
+                "day": day.slice(0, 3).toLowerCase(),
+                "shift": shift,
+                "offset": week_offset? week_offset : 0
             }),
         }).then(response => {
             console.log(response.json());
@@ -53,6 +55,7 @@ function removeShift(name, day, shift) {
 
 function addShift(name, day, shift) {
     //send a request to the server to add the shift
+    let week_offset = parseInt(window.location.href.split('/').pop()) // Nan if no route param
     fetch('/addShift',
         {
             method: 'POST',
@@ -61,8 +64,9 @@ function addShift(name, day, shift) {
             },
             body: JSON.stringify({
                 "name": name,
-                "day": day,
-                "shift": shift
+                "day": day.slice(0, 3).toLowerCase(),
+                "shift": shift,
+                "offset": week_offset? week_offset : 0
             }),
         })
 }

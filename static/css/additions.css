@@ -1,7 +1,17 @@
 :root {
     --checkbox-width: 3.5em
 }
-
+.shift_req_container {
+    border: 2px solid #374956;
+    border-radius: 0.25em;
+    margin-bottom: 0.75rem;
+    text-align: center; 
+}
+.shift_req_input {
+    border: 2px solid #374956;
+    border-radius: 0.25em;
+    text-align: center; 
+}
 
 .checkbox-div {
     display: inline-block;
@@ -72,12 +82,19 @@ th {
 
 .red:hover {
     background-color: #fe6666;
-    border: 1px solid #fbfbfb;
-    margin-bottom: 9px;
+    border: 2px solid #fbfbfb;
+}
+
+.scheduled-shift.red:hover {
+    margin-bottom: 7px;
+}
+
+.scheduled-shift.isAvailable {
+    background-color: hsl(195, 85%, 41%);
 }
 
 .unscheduled-shift:hover {
     background-color: #66feb7;
-    border: 1px solid #fbfbfb;
-    margin-bottom: 9px;
+    border: 2px solid #fbfbfb;
+    margin-bottom: 7px;
 }

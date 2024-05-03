@@ -28,7 +28,7 @@ function populateTable(shifts) {
 
 
 function cancelForm() {
-    window.location.href = "/schedule_view"
+    window.location.href = "/newschedule"
 }
 
 function getPossibleShifts(name, day) {

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from models import User, db, Schedule, get_schedule_for_week, write_availability_to_database, get_avails_for_week, get_avail_of, get_next_monday, removeShift, addShift
+from models import User, db, Schedule, getShifts ,get_schedule_for_week, write_availability_to_database, get_avails_for_week, get_avail_of, get_next_monday, removeShift, addShift, addScheduleShift, removeScheduleShift, setShiftAsAvailableDb
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
@@ -66,9 +66,9 @@ def submit_availability():
 @app.route('/removeShift', methods=['DELETE'])
 def removeShiftRoute():
     data = request.get_json()
-    day, shift, name = data['day'][:3], data['shift'], data['name']
+    day, shift, name, offset = data['day'][:3], data['shift'], data['name'], data['offset']
     try:
-        removeShift(name, day, shift)
+        removeShift(name, day, shift, offset)
     except Exception as e:
         print(f"Error removing shift: {e}")
         return 'Error! Probably cant find shift', 500
@@ -78,8 +78,8 @@ def removeShiftRoute():
 @app.route('/addShift', methods=['POST'])
 def addShiftRoute():
     data = request.get_json()
-    day, shift, name = data['day'], data['shift'], data['name'] 
-    addShift(name, day ,shift)
+    day, shift, name, offset = data['day'], data['shift'], data['name'], data['offset']
+    addShift(name, day ,shift, offset)
     return 'Success', 200
 
 @login_required
@@ -87,15 +87,7 @@ def addShiftRoute():
 @app.route('/newschedule', methods=['GET','POST'])
 def new_schedule(week_offset=0):
     week_offset = int(week_offset)+1 #hack to get default to be next week while using utils.modifyRouteParam()
-    shifts = {
-    'mon': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'tue': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'wed': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'thur': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'fri': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL' ,'5-CL'],
-    'sat': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL' ,'5-CL'],
-    'sun': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL'],
-    }
+    shifts = getShifts()
 
     first_monday = get_next_monday()+timedelta(days=week_offset*7-7)
     availabilities = get_avails_for_week(week_offset)
@@ -136,21 +128,19 @@ def schedule_view(week_offset=0):
     user_avail = get_avail_of(current_user.username)
     users = [user.username for user in User.query.all()]
 
-    needed_shifts = {
-    'mon': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'tue': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'wed': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'thur': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL'],
-    'fri': ['10-3H', '5-10H', '10-4', '10-5','5-CL','5-CL','5-CL' ,'5-CL'],
-    'sat': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL' ,'5-CL'],
-    'sun': ['12-5H', '5-10H','10-5', '10-5', '10-5','5-CL','5-CL','5-CL'],
-    }
+    needed_shifts = getShifts()
     if user_avail:
         del user_avail['week_of']
     else:
         user_avail = {}
-    print(schedule)
     return render_template('schedule_view.html', username=username, schedule=schedule, needed_shifts=needed_shifts ,user_avail=user_avail, names = users, next_monday = get_next_monday()+timedelta(7*int(week_offset)-7))
+
+@app.route('/setShiftAsAvailable', methods=['POST'])
+def setShiftAsAvailable():
+    data = request.get_json()
+    day, shift, name, offset = data['day'], data['shift'], data['name'], data['offset']
+    setShiftAsAvailableDb(name, day, shift, offset)
+    return '', 204
 
 @app.route('/optimize-schedule', methods=['POST'])
 def optimize_schedule():
@@ -212,7 +202,20 @@ def staff_avail_for_shift(day, shift, staff_availabilities):
 def checkAvail(shift, name, day, avails):
     return 'AM' in avails[name][day] and shift[0] != '5' or 'PM' in avails[name][day] and shift[0] == '5'
 
-
+@app.route('/settings', methods=['GET' , 'POST', 'DELETE'])
+def settings():
+    if request.method == 'POST':
+        data = request.get_json()
+        day = data['day']
+        shift = data['shift']
+        addScheduleShift(day, shift)
+    elif request.method == 'DELETE':
+        data = request.get_json()
+        day = data['day']
+        shift = data['shift']
+        removeScheduleShift(day, shift)
+        
+    return render_template('settings.html', needed_shifts = getShifts(), username = current_user.username)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+
+
+
+<main class="container">
+    <h1>Settings</h1>
+    <br>
+    {% if username=='admin' %}
+    <h3>Here you can edit the amount of shifts you need covered each week</h3>
+    <table>
+        <tr>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+            <th>Sunday</th>
+        </tr>
+        <tr>
+            {% for day in needed_shifts %}
+            <td>
+                {% for shift in needed_shifts[day] %}
+                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift}}')">{{ shift }}</div>
+                {% endfor %}
+                <input class="shift_req_input" type="text" id="shiftInput_{{day}}" placeholder="New shift"
+                    onkeydown="if (event.keyCode === 13) { addReqShift('{{day}}', document.getElementById('shiftInput_{{day}}').value); }"
+                    style="padding: 0%; height: 1.25rem;">
+            </td>
+            {% endfor %}
+        </tr>
+    </table>
+    {%endif%}
+</main>
+
+{%endblock%}
