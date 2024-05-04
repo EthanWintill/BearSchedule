@@ -25,9 +25,14 @@ with app.app_context():
     # db.session.add(admin)
     # db.session.commit()
 
+@app.route('/health')
+def health():
+    #insert health checks here?
+    return jsonify({'status': 'ok'}), 200
+
 @app.route('/test')
 def test():
-    return 'test passed'
+    return 'NIGGAS!'
 
 # Route for the login page
 @app.route('/', methods=['GET', 'POST'])
@@ -114,6 +119,7 @@ def new_schedule(week_offset=0):
         schedule = get_schedule_for_week(offset=week_offset)
         text_schedule(schedule)
 
+        return redirect('/schedule_view')
     
     json_availabilities = {avail.name:avail.as_dict() for avail in availabilities}
     return render_template('newschedule.html', availabilities=json_availabilities, days=shifts.keys(), shifts=shifts, week_of=first_monday)
