@@ -1,64 +1,142 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% block script %}
+<script>
+    window.needed_shifts = ('{{ needed_shifts | tojson | safe }}');
+    window.schedule = ('{{ schedule | tojson | safe }}');
+    window.names = ('{{ names | tojson | safe }}');
+    window.username = ('{{ username | tojson | safe }}');
+</script>
+<!-- <script src="{{ url_for('static', filename='js/utils.js') }}" type="module"></script> -->
+<script src="{{ url_for('static', filename='js/schedule_view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+
+{% if username=='admin' %}
+<script src="{{ url_for('static', filename='js/schedule_view_manager.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manager_additions.css') }}">
+{%else%}
+<script src="{{ url_for('static', filename='js/schedule_view_staff.js') }}"></script>
+{%endif%}
+{%endblock%}
+
 
 <main class="container">
 
     <h1>Welcome, {{ username }}</h1>
 
+    <h3>Schedule for week of {{next_monday.strftime("%B %d, %Y") }}</h3>
+    <div class="wrapper-nxt-prv">
+        <button class="outline contrast" onclick="modifyRouteParam(-1)">
+            < </button>
+                <table style="margin-bottom: 0;">
+                    <tbody>
+                        <tr>
+                            <th>Shift</th>
+                            {% for day, shifts in schedule.items() %}
+                            <th>{{day}}</th>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>AM</td>
+                            {% for day, shifts in schedule.items() %}
+                            <td id="{{day}}_AM">
+                                {% for shift in shifts %}
+                                {% if shift.0[0] != '5' %}
+                                {% if shift.2 %}
+                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}} isAvailable"
+                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
+                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
+                                    shift.0
+                                    }}: {{ shift.1 }}</div>
+                                {% else %}
+                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}}"
+                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
+                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
+                                    shift.0
+                                    }}: {{ shift.1 }}</div>
+                                {% endif %}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td>PM</td>
+                            {% for day, shifts in schedule.items() %}
+                            <td id="{{day}}_PM">
+                                {% for shift in shifts %}
+                                {% if shift.0[0] == '5' %}
+                                {% if shift.2 %}
+                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}} isAvailable"
+                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
+                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
+                                    shift.0
+                                    }}: {{ shift.1 }}</div>
+                                {% else %}
+                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}}"
+                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
+                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
+                                    shift.0
+                                    }}: {{ shift.1 }}</div>
+                                {%endif%}
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+
+                </table>
+                <button class="outline contrast" onclick="modifyRouteParam(1)"> > </button>
+    </div>
+    <cite>*Editable</cite>
+</main>
+
+    {% if username != 'admin' %}
+    <h3>Next Week's Availability</h3>
     <table>
         <tr>
             <th>Name</th>
+            <th>Sunday</th>
             <th>Monday</th>
             <th>Tuesday</th>
             <th>Wednesday</th>
             <th>Thursday</th>
             <th>Friday</th>
             <th>Saturday</th>
-            <th>Sunday</th>
         </tr>
         <tr>
-            <td>AM</td>
-            {% for day, shifts in schedule.items() %}
-            <td>
-                {% for shift in shifts %}
-                {% if shift.0[0] != '5' %}
-                {{ shift.0 }}: {{ shift.1 }}<br>
-                {%endif%}
-                {% endfor %}
-            </td>
-            {% endfor %}
-        </tr>
-        <tr>
-            <td>PM</td>
-            {% for day, shifts in schedule.items() %}
-            <td>
-                {% for shift in shifts %}
-                {% if shift.0[0] == '5' %}
-                {{ shift.0 }}: {{ shift.1 }}<br>
-                {%endif%}
-                {% endfor %}
-            </td>
+            {% for day, avail in user_avail.items() %}
+            <td>{{avail}}</td>
             {% endfor %}
         </tr>
     </table>
-    </main>
 
-    <footer class="container">
-        
-        <div class="grid">
-            <div></div><div></div><div></div>
-            {% if username=='admin' %}
-            <form action="/newschedule" method="GET">
-                <button type="submit">Create Schedule</button>
-            </form>
-            {% else %}
-            <form action="/availability_form" method="GET">
-                <button type="submit">Enter Availability</button>
-            </form>
-            {%endif%}
-        </div>
-    </footer>
+    {% endif %}
+    <div class="grid">
+        <div></div>
+        <div></div>
+        <div></div>
+        {% if username=='admin' %}
+        <form action="/availability_form" method="GET">
+            <button class="secondary" type="submit">Enter Availability</button>
+        </form>
+        <form action="/newschedule" method="GET">
+            <button type="submit">Create Schedule</button>
+        </form>
+        {% else %}
+        <form action="/availability_form" method="GET">
+            <button type="submit">Enter Availability</button>
+        </form>
+        {%endif%}
+    </div>
+    <!-- Select -->
+
+<footer class="container">
+
+
+</footer>
 
 
 {%endblock%}

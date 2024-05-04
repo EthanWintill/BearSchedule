@@ -6,6 +6,7 @@ import os
 import json
 from models import get_name_from_number, write_availability_to_database
 from dotenv import load_dotenv
+from models import User
 
 load_dotenv()
 
@@ -13,7 +14,6 @@ load_dotenv()
 texts = Blueprint('texts',__name__)
 
 client = OpenAI()
-
 
 
 @texts.route('/sms', methods = ['POST'])
@@ -46,7 +46,7 @@ def sms():
         write_availability_to_database(sender_name, gpt_resp)
         reply = f'\n\nUpdated your availability to:\n {reply}' #f"{gpt_resp['coax']}" if 'coax' in gpt_resp else 'Availability recieved!'
     except:
-        reply = f'Sorry, I caused an error, please try rewording you availability\n\nREFERENCE\n {reply}'
+        reply = f'Sorry, I had an error, please try rewording you availability\n\nREFERENCE\n {reply}'
         print(reply)
         
     resp = MessagingResponse()  
@@ -54,3 +54,25 @@ def sms():
 
 
     return str(resp)
+
+
+def text_schedule(schedule):
+    phone_numbers = User.query.with_entities(User.phone).all()
+    recipients = ['8329199116'] #[phone[0] for phone in phone_numbers]
+    message_body = '-------------------------------\n'
+    for day, shifts in schedule.items():
+        message_body += f'{day.upper()}\n'
+        for shift in shifts:
+            message_body+= f'{shift[0]}\t{shift[1]}\n'
+        message_body += '-------------------------------\n'
+    account_sid = os.environ.get('TWILIO_ACCOUNT_SID')
+    auth_token = os.environ.get('TWILIO_AUTH_TOKEN')
+    twilio_client = rest.Client(account_sid, auth_token)
+    for number in recipients:
+        try:
+            message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=number )
+            print(message.sid)
+        except:
+            print(f'{number} is not a phone numbers')
+
+

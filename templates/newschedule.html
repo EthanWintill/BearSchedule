@@ -2,44 +2,56 @@
 
 {% block content %}
 
-{% block script %} 
-<script > 
+{% block script %}
+<script>
     window.needed_shifts = ('{{ shifts | tojson | safe }}');
     window.avails = '{{availabilities | tojson | safe }}'
-</script> 
-<script src="/static/js/newschedule.js" ></script>
+</script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/newschedule.js') }}"></script>
+
 {%endblock%}
 
 <main class="container-fluid">
-    <div class="container">
-        <h1>New Schedule</h1>
+    <div class="wrapper-nxt-prv">
+        <button class="outline contrast" onclick="modifyRouteParam(-1)"> < </button>
+        <h1>Publish Schedule For Week of {{week_of.strftime("%B %d")}}</h1>
+        <button class="outline contrast" onclick="modifyRouteParam(1)"> > </button>
     </div>
 
+    
     <form method="POST">
         <table>
             <tr>
-                <th>User</th>
+                <th scope="col">User</th>
                 {% for day in days %}
-                <th>{{ day }}</th>
+                <th scope="col">{{ day.capitalize() }}</th>
                 {% endfor %}
             </tr>
             {% for availability in availabilities %}
             <tr>
-                <td>{{ availability }}</td>
+                <td scope="row">{{ availability }}</td>
                 {% for day in days %}
                 <td>
-                    <div id="{{ availability }}_{{ day }}">
-                        <!-- Checkboxes will be added dynamically here -->
+                    <div class="grid">
+                        <div id="{{ availability }}_{{ day }}_AM" class="container"></div>
+                        <div id="{{ availability }}_{{ day }}_PM" class="container"></div>
                     </div>
-                </td>                
+                </td>
                 {% endfor %}
             </tr>
             {% endfor %}
         </table>
         <div class="grid">
-            <div></div><div></div>
-            <button type="button" onclick="cancelForm()" class="secondary">Cancel</button>
-            <button type="submit">Update Schedule</button>
+            <div></div>
+            <div></div>
+            <button type="button" onclick="cancelForm()" class="secondary">Clear</button>
+            <button type="submit" onclick="window.location.href='/schedule_view'">Send Schedule</button>
+        </div>
+        </div>
+        <div class="grid">
+            <div></div><div></div><div></div>
+            <button type="button" class="contrast" onclick="autoCompleteSchedule()">Autocomplete</button>
         </div>
     </form>
 </main>
