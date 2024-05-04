@@ -6,9 +6,10 @@
 
     <h1>Welcome, {{ username }}</h1>
 
+    <h3>Week of {{next_monday.strftime("%B %d, %Y")  }}</h3>
     <table>
         <tr>
-            <th>Name</th>
+            <th>Shift</th>
             <th>Monday</th>
             <th>Tuesday</th>
             <th>Wednesday</th>
@@ -42,6 +43,26 @@
             {% endfor %}
         </tr>
     </table>
+
+    <h3>Current Availability</h3>
+    <table>
+<tr>
+            <th>Name</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+            <th>Sunday</th>
+        </tr>
+        <tr>
+            {% for day, avail in user_avail.items() %}
+            <td>{{avail}}</td>
+            {% endfor %}
+        </tr>
+    </table>
+
     </main>
 
     <footer class="container">

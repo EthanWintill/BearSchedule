@@ -2,6 +2,7 @@ from werkzeug.security import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime, timedelta
+from utils import get_next_monday
 
 db = SQLAlchemy()
 
@@ -21,7 +22,8 @@ class Schedule(db.Model):
 
 
 class Availability(db.Model):
-    name = db.Column(db.String(50), unique=True, nullable=False, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, primary_key=True)
+    week_of = db.Column(db.String(20), nullable=False)
     sun = db.Column(db.String(10))
     mon = db.Column(db.String(10))
     tue = db.Column(db.String(10))
@@ -32,12 +34,17 @@ class Availability(db.Model):
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+def get_next_week_availabilites():
+    next_week_start = get_next_monday()
     
+    next_week_avails = Availability.query.filter(
+        Availability.week_of == next_week_start).all()
+    return next_week_avails
+
 
 
 def get_next_week_schedule():
-    today = datetime.now().date()
-    next_week_start = today + timedelta(days=(7 - today.weekday()))
+    next_week_start = get_next_monday()
     next_week_end = next_week_start + timedelta(days=7)
     
     next_week_schedule = Schedule.query.filter(
@@ -65,7 +72,8 @@ def get_next_week_schedule():
     return formatted_schedule
 
 def write_availability_to_database(name: str, avail: dict):
-    prevAvail = Availability.query.filter_by(name=name).first()
+    next_monday = get_next_monday()
+    prevAvail = Availability.query.filter_by(name=name, week_of=next_monday).first()
     if prevAvail:
         # Update existing record
         prevAvail.sun = avail['sunday']
@@ -79,6 +87,7 @@ def write_availability_to_database(name: str, avail: dict):
         # Create a new record
         avail = Availability(
             name=name,
+            week_of = next_monday,
             sun=avail['sunday'],
             mon=avail['monday'],
             tue=avail['tuesday'],
@@ -94,3 +103,10 @@ def write_availability_to_database(name: str, avail: dict):
 def get_name_from_number(number: str):
     record = User.query.filter_by(phone = number).first()
     return None if record is None else str(record.username)
+
+def get_avail_of(name: str):
+    next_monday = get_next_monday()
+    avail = Availability.query.filter_by(week_of = next_monday, name = name).first()
+    print(avail)
+    return avail.as_dict()
+    

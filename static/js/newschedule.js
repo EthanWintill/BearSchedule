@@ -121,7 +121,22 @@ function updateDay(day, name) {
 
 }
 
+function computeSchedule(shiftsNeeded, employeesAvailabilities) {
+    fetch('/optimize-schedule', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ shiftsNeeded, employeesAvailabilities }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Optimal schedule received from the server:', data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 
-
+}
 
 

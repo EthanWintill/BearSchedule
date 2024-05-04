@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from models import Availability, db, Schedule, get_next_week_schedule, write_availability_to_database
+from models import Availability, db, Schedule, get_next_week_schedule, write_availability_to_database, get_next_week_availabilites, get_avail_of, get_next_monday
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
-from texts.texts import texts
+from texts.texts import texts, text_schedule
+from pulp import LpVariable, LpProblem, lpSum, LpMinimize, LpInteger
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -71,7 +73,7 @@ def new_schedule():
     }
 
 
-    availabilities = Availability.query.all()
+    availabilities = get_next_week_availabilites()
 
     if request.method=='POST':
 
@@ -94,7 +96,11 @@ def new_schedule():
                     db.session.add(entry)
                     print(f'{shift} {day} {availability.name}') 
         
-        db.session.commit()     
+        db.session.commit()
+
+        schedule = get_next_week_schedule()
+        text_schedule(schedule)
+
     
     json_availabilities = {avail.name:avail.as_dict() for avail in availabilities}
     return render_template('newschedule.html', availabilities=json_availabilities, days=shifts.keys(), shifts=shifts)
@@ -105,7 +111,58 @@ def new_schedule():
 def schedule_view():
     username = current_user.username
     schedule = get_next_week_schedule()
-    return render_template('schedule_view.html', username=username, schedule=schedule)
+    user_avail = get_avail_of(current_user.username)
+    del user_avail['week_of']
+    return render_template('schedule_view.html', username=username, schedule=schedule, user_avail=user_avail, next_monday = get_next_monday())
+
+@app.route('/optimize-schedule', methods=['POST'])
+def optimize_schedule():
+    data = request.get_json()
+
+    shifts_needed = data.get('shiftsNeeded', {})
+    employees_availabilities = data.get('employeesAvailabilities', {})
+    print(shifts_needed,employees_availabilities)
+    # Perform linear programming optimization using pulp
+    optimal_schedule = perform_optimization(shifts_needed, employees_availabilities)
+
+    return jsonify(optimal_schedule)
+
+
+def perform_optimization(shifts_needed, employees_availabilities):
+    lp = LpProblem("Employee_Scheduling", LpMinimize)
+
+    # Define variables
+    variables = {(employee, day, shift): LpVariable(f"{employee}_{day}_{shift}", 0, 1, LpInteger)
+                 for employee in employees_availabilities
+                 for day in shifts_needed
+                 for shift in shifts_needed[day]}
+
+    # Objective function: minimize the total assignments
+    lp += lpSum(variables.values())
+
+    # Constraints
+    # Each employee can be assigned at most one shift per day
+    for employee in employees_availabilities:
+        for day in shifts_needed:
+            lp += lpSum(variables[employee, day, shift] for shift in shifts_needed[day]) <= 1
+
+    # Each shift must be assigned to exactly one employee
+    for day in shifts_needed:
+        for shift in shifts_needed[day]:
+            lp += lpSum(variables[employee, day, shift] for employee in employees_availabilities) == 1
+
+    # Solve the problem
+    lp.solve()
+
+    # Extract the optimal schedule
+    optimal_schedule = {day: {shift: [] for shift in shifts_needed[day]} for day in shifts_needed}
+    for variable, value in variables.items():
+        if value.varValue == 1:
+            employee, day, shift = variable
+            optimal_schedule[day][shift].append(employee)
+
+    return optimal_schedule
+
 
 
 if __name__ == '__main__':
