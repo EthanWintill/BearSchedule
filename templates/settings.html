@@ -24,15 +24,57 @@
             {% for day in needed_shifts %}
             <td>
                 {% for shift in needed_shifts[day] %}
-                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift}}')">{{ shift }}</div>
+                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift}}')">{{ shift.shift }}</div>
                 {% endfor %}
-                <input class="shift_req_input" type="text" id="shiftInput_{{day}}" placeholder="New shift"
-                    onkeydown="if (event.keyCode === 13) { addReqShift('{{day}}', document.getElementById('shiftInput_{{day}}').value); }"
-                    style="padding: 0%; height: 1.25rem;">
             </td>
             {% endfor %}
         </tr>
     </table>
+    <div class="grid">
+        <div></div><div></div><div></div>
+        <button class="primary" id="shiftInput_{{day}}" onclick="document.querySelector('dialog').open = true;">New Shift</button></div>
+
+    <dialog>
+        <article>
+            <h2>Add New Required Shift</h2>
+            <form action="/settings" method="post">
+                <label for="start">Start Time:</label>
+                <input type="time" id="start" name="start" required>
+                <label for="end">End Time:</label>
+                <input type="time" id="end" name="end" required>
+                <label for="type">Shift Type:</label>
+                <select id="type" name="type" required>
+                    <option value="S" selected>Serving</option>
+                    <option value="T">Training</option>
+                    <option value="H">Host</option>
+                </select>
+                
+                <fieldset role="group">
+                    <input type="checkbox" id="modal-mon" name="mon" value="mon">
+                    <label for="modal-mon">Mon</label>
+                    <input type="checkbox" id="modal-tue" name="tue" value="tue">
+                    <label for="modal-tue">Tue</label>
+                    <input type="checkbox" id="modal-wed" name="wed" value="wed">
+                    <label for="modal-wed">Wed</label>
+                    <input type="checkbox" id="modal-thu" name="thu" value="thu">
+                    <label for="modal-thu">Thu</label>
+                    <input type="checkbox" id="modal-fri" name="fri" value="fri">
+                    <label for="modal-fri">Fri</label>
+                    <input type="checkbox" id="modal-sat" name="sat" value="sat">
+                    <label for="modal-sat">Sat</label>
+                    <input type="checkbox" id="modal-sun" name="sun" value="sun">
+                    <label for="modal-sun">Sun</label>
+                </fieldset>
+            <footer class="grid">
+                <button class="secondary" onclick="document.querySelector('dialog').open = false;" type="button">
+                    Cancel
+                </button>
+                <button type="submit" >Confirm</button>
+            </footer>
+            </form>
+        </article>
+    </dialog>
+
     {%endif%}
 </main>
 

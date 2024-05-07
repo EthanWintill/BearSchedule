@@ -1,3 +1,4 @@
+import json
 from werkzeug.security import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
@@ -20,6 +21,12 @@ class Schedule(db.Model):
     shift = db.Column(db.String(20))
     name = db.Column(db.String(50))
     isAvailable = db.Column(db.Boolean, default=False)
+    shift_id = db.Column(db.Integer, db.ForeignKey('shift.id'))
+    shift_ref = db.relationship('Shift', backref='schedule')
+    startTime = db.Column(db.String(10))
+    endTime = db.Column(db.String(10))
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Availability(db.Model):
@@ -39,9 +46,14 @@ class Shift(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     day = db.Column(db.String(10))
     shift = db.Column(db.String(20))
+    startTime = db.Column(db.String(10))
+    endTime = db.Column(db.String(10))
+    type = db.Column(db.String(10))
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-def addScheduleShift(day, shift):
-    entry = Shift(day=day, shift=shift)
+def addScheduleShift(day, shift, start, end, shift_type):
+    entry = Shift(day=day, shift=shift, startTime=start, endTime=end, type=shift_type)
     db.session.add(entry)
     db.session.commit()
 
@@ -53,9 +65,12 @@ def removeScheduleShift(day, shift):
 def getShifts():
     shifts = Shift.query.all()
     # Organize shifts by day
-    shifts = {day: sorted([shift.shift for shift in shifts if shift.day == day]) for day in ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']}
+    shifts = {day: sorted([shift.as_dict() for shift in shifts if shift.day == day], key=lambda x: x['startTime']) for day in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']}
+
     return shifts
 
+
+#Availability
 def get_next_week_availabilites():
     next_week_start = get_next_monday()
     
@@ -68,25 +83,6 @@ def get_avails_for_week(week_offset=0):
     week_avails = Availability.query.filter(
         Availability.week_of == week_start).all()
     return week_avails
-
-def get_schedule_for_week(offset=0):
-    week_end = get_next_monday()+timedelta(days=offset*7)
-    week_start = week_end+timedelta(days=-7)
-    
-    next_week_schedule = Schedule.query.filter(
-        Schedule.date >= week_start,
-        Schedule.date < week_end
-    ).all()
-    next_week_dates = [week_start+timedelta(days=i) for i in range(7)]
-    # Process and format the schedule data as needed for display
-    formatted_schedule = {date.strftime('%a-%d'): [] for date in next_week_dates }
-    print(formatted_schedule)
-    # Iterate through the schedule data and organize it by day and shift
-    for entry in next_week_schedule:
-        day, shift, user, isAvailable = datetime.strptime(entry.date, '%Y-%m-%d').strftime('%a-%d'), entry.shift, entry.name, entry.isAvailable
-        formatted_schedule.setdefault(day,[]).append([shift, user, isAvailable])
-        formatted_schedule[day].sort(key=lambda x: x[0])
-    return formatted_schedule
 
 def write_availability_to_database(name: str, avail: dict):
     next_monday = get_next_monday()
@@ -117,9 +113,6 @@ def write_availability_to_database(name: str, avail: dict):
 
     db.session.commit()
 
-def get_name_from_number(number: str):
-    record = User.query.filter_by(phone = number).first()
-    return None if record is None else str(record.username)
 
 def get_avail_of(name: str):
     next_monday = get_next_monday()
@@ -128,14 +121,36 @@ def get_avail_of(name: str):
     return avail.as_dict() if avail else None
     
 
+#schedule
+def get_schedule_for_week(offset=0):
+    week_end = get_next_monday()+timedelta(days=offset*7)
+    week_start = week_end+timedelta(days=-7)
+    
+    next_week_schedule = Schedule.query.filter(
+        Schedule.date >= week_start,
+        Schedule.date < week_end
+    ).all()
+    next_week_dates = [week_start+timedelta(days=i) for i in range(7)]
+    # Process and format the schedule data as needed for display
+    formatted_schedule = {date.strftime('%a-%d'): [] for date in next_week_dates }
+    print(formatted_schedule)
+    # Iterate through the schedule data and organize it by day and shift
+    for entry in next_week_schedule:
+        day = datetime.strptime(entry.date, '%Y-%m-%d').strftime('%a-%d')
+        formatted_schedule.setdefault(day,[]).append(entry.as_dict())
+        formatted_schedule[day].sort(key=lambda x: x['shift'])
+    return formatted_schedule
+
+
 def removeShift(name: str, day: str, shift: str, week_offset=0):
     entry = getScheduleEntry(name, day, shift, week_offset)
     db.session.delete(entry)
     db.session.commit()
 
-def addShift(name: str, day: str, shift: str, week_offset=0):
+def addShift(name: str, day: str, shift: str, shift_id: int, week_offset=0):
     this_monday = get_next_monday()+timedelta(days=week_offset*7-7)
-    entry = Schedule(date=this_monday+timedelta(days=['mon','tue','wed','thur','fri','sat','sun'].index(day)), shift=shift, name=name)
+    relevant_shift = Shift.query.filter_by(id=shift_id).first()
+    entry = Schedule(date=this_monday+timedelta(days=['mon','tue','wed','thu','fri','sat','sun'].index(day)), shift=shift, name=name, shift_id=shift_id, startTime=relevant_shift.startTime, endTime=relevant_shift.endTime)
     db.session.add(entry)
     db.session.commit()
 
@@ -149,3 +164,9 @@ def getScheduleEntry(name: str, day: str, shift: str, week_offset=0):
     this_monday = get_next_monday()+timedelta(days=week_offset*7-7)
     entry = Schedule.query.filter_by(name=name, date=this_monday+timedelta(days=['mon','tue','wed','thu','fri','sat','sun'].index(day)), shift=shift).first()
     return entry
+
+
+#User
+def get_name_from_number(number: str):
+    record = User.query.filter_by(phone = number).first()
+    return None if record is None else str(record.username)

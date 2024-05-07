@@ -50,3 +50,8 @@ function subtractArrays(small, big) {
 
     return result;
 }
+
+
+function timeIsAMorPm(time) {
+    return time<'12:00' ? 'AM' : 'PM';
+}

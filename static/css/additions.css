@@ -1,5 +1,5 @@
 :root {
-    --checkbox-width: 3.5em
+    --checkbox-width: 3.75em
 }
 .shift_req_container {
     border: 2px solid #374956;
@@ -27,6 +27,7 @@
 
 .checkbox-div label {
     margin-bottom: 0px;
+    font-size: 15px;
 }
 
 

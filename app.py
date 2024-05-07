@@ -83,8 +83,8 @@ def removeShiftRoute():
 @app.route('/addShift', methods=['POST'])
 def addShiftRoute():
     data = request.get_json()
-    day, shift, name, offset = data['day'], data['shift'], data['name'], data['offset']
-    addShift(name, day ,shift, offset)
+    day, shift, name, offset, shift_id = data['day'], data['shift'], data['name'], data['offset'], data['shift_id']
+    addShift(name, day ,shift, shift_id, offset)
     return 'Success', 200
 
 @login_required
@@ -116,13 +116,19 @@ def new_schedule(week_offset=0):
         
         db.session.commit()
 
-        schedule = get_schedule_for_week(offset=week_offset)
-        text_schedule(schedule)
 
         return redirect('/schedule_view')
     
     json_availabilities = {avail.name:avail.as_dict() for avail in availabilities}
     return render_template('newschedule.html', availabilities=json_availabilities, days=shifts.keys(), shifts=shifts, week_of=first_monday)
+
+
+@login_required
+@app.route('/text-schedule', methods=['POST'])
+def text_schedule_route():
+    schedule = get_schedule_for_week()
+    text_schedule(schedule)
+    return 'Texted schedule', 200
 
 # Route for the schedule_view page
 @login_required
@@ -211,10 +217,19 @@ def checkAvail(shift, name, day, avails):
 @app.route('/settings', methods=['GET' , 'POST', 'DELETE'])
 def settings():
     if request.method == 'POST':
-        data = request.get_json()
-        day = data['day']
-        shift = data['shift']
-        addScheduleShift(day, shift)
+        days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+        start = request.form['start']
+        end = request.form['end']
+        shift_type = request.form['type']
+        formatted_start = datetime.strptime(start, '%H:%M').strftime('%I')
+        formatted_end = datetime.strptime(end, '%H:%M').strftime('%I')
+        formatted_type = '' if shift_type == 'S' else shift_type
+        shift = f'{formatted_start}-{formatted_end}{formatted_type}'
+        print(request.form)
+        print(days_of_week)
+        for day in days_of_week:
+            if day in request.form:
+                addScheduleShift(day, shift, start, end, shift_type)
     elif request.method == 'DELETE':
         data = request.get_json()
         day = data['day']
