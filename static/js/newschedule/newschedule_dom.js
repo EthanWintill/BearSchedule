@@ -9,7 +9,7 @@ function addShiftOption(shiftObj, name, day) {
     let hidden_check = document.createElement('input');
     hidden_check.type = 'checkbox';
     hidden_check.name = `${name}_${day}`;
-    hidden_check.value = `${shiftObj.shift}`
+    hidden_check.value = `${shiftObj.id}`
     hidden_check.id = `${name}_${day}_${shiftObj.shift}_hiddencheck`;
     hidden_check.style.display = 'none';
 

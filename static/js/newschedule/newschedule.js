@@ -1,9 +1,10 @@
 let needed_shifts = JSON.parse(window.needed_shifts);
 let avails = JSON.parse(window.avails);
+
+//keeps track of all the shifts that are possible for each person on each day, inluding duplicates and checked shifts
 let shifts = updateShifts(needed_shifts, avails);
 let days = Object.keys(needed_shifts);
 let names = Object.keys(avails);
-let shiftTypes = ['10-3H', '12-5H', '10-4', '10-5', '5-10H', '5-CL']
 console.log(shifts);
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -29,7 +30,6 @@ function cancelForm() {
 }
 
 function getPossibleShifts(name, day) {
-    avail = avails[name][day];
     needed_shifts_day = needed_shifts[day];
     possibleShifts = [];
     for (let shift of needed_shifts_day) {
@@ -54,19 +54,9 @@ function updateShifts(needed_shifts, avails) {
 
 
 function checkAvail(shift, name, day) {
-    day = day=='thu' ? 'thur' : day;
-
-    let avail = avails[name][day];
-    let startingAvail = '24:00';
-    let endingAvail = '00:00';
-
-    if (avail.includes('AM')) {
-        startingAvail = '09:00';
-        endingAvail = avail.includes('PM') ? '24:00' : '17:30';
-    } else if (avail.includes('PM')) {
-        startingAvail = '16:30';
-        endingAvail = '24:00';
-    }
+    let startingAvail = avails[name][`${day}_start`];
+    let endingAvail =  avails[name][`${day}_end`];
+    
     return shift.startTime >= startingAvail && shift.endTime <= endingAvail;
 }
 
@@ -76,7 +66,7 @@ function fillSchedule(schedule) {
         for (let name in schedule[day]) {
             console.log(schedule[day][name])
             for (let shift of schedule[day][name]) {
-                checkShift(day, name, shift);
+                checkShift(day, name, shift.shift);
             }
         }
     }
@@ -116,20 +106,21 @@ function computeSchedule(shiftsNeeded, employeesAvailabilities) {
 
 //Get methods
 
+
+//update availability based on the checked shifts
 function getUpdatedAvails(avails_param) {
     let updatedAvails = JSON.parse(JSON.stringify(avails_param));
-    for (let day of days) {
+    for (let day of Object.keys(shifts)) {
         for (let name of names) {
-            for (let shift of shiftTypes) {
-                if(isChecked(name,day,shift)){
+            for (let shiftObj of shifts[day][name]) {
+                if (isChecked(name, day, shiftObj.shift)) {
 
-                    let isNightshift = shift[0] == '5';
-                    if (isNightshift && updatedAvails[name][day].includes('PM')) {
-                        updatedAvails[name][day] = updatedAvails[name][day].replace('PM', '');
-                    }else if(updatedAvails[name][day].includes('AM')){
-                        updatedAvails[name][day] = updatedAvails[name][day].replace('AM', '');
+                    let sideOfDay = timeIsAMorPm(shiftObj.startTime);
+                    if (sideOfDay == 'AM') {
+                        updatedAvails[name][`${day}_start`] = shiftObj.endTime;
+                    } else {
+                        updatedAvails[name][`${day}_end`] = shiftObj.startTime;
                     }
-
                 }
             }
         }
@@ -137,17 +128,21 @@ function getUpdatedAvails(avails_param) {
     return updatedAvails;
 }
 
-
+//Get all the currently checked shifts as shiftObjs
 function getCurrentFilledShifts() {
     let filled_shifts = {};
-    for (let day of days) {
+    let day_name_shiftobjs;
+    for (let day of Object.keys(shifts)) {
         filled_shifts[day] = [];
         for (let name of names) {
-            for (let shift of shiftTypes) {
-                if (isChecked(name,day,shift)) {
-                    filled_shifts[day].push(shift);
+            //Create a copy of shifts[day][name] that avoids duplicate shiftObjs
+            day_name_shiftobjs = [];
+            for (let shiftObj of shifts[day][name]) {
+                if (isChecked(name, shiftObj.day, shiftObj.shift) && !day_name_shiftobjs.map(shift => shift.shift).includes(shiftObj.shift)) {
+                    day_name_shiftobjs.push(shiftObj);
                 }
             }
+            filled_shifts[day] = filled_shifts[day].concat(day_name_shiftobjs);
         }
     }
     return filled_shifts;
@@ -158,11 +153,11 @@ function getCurrentlyNeededShifts() {
     let currentlyNeededShifts = {};
     let filled_shifts = getCurrentFilledShifts();
     for (let day of days) {
-        currentlyNeededShifts[day] = subtractArrays(filled_shifts[day], needed_shifts[day])
+        currentlyNeededShifts[day] = getMissingShifts(filled_shifts[day], needed_shifts[day])
     }
     return currentlyNeededShifts;
 }
 
-function getShiftObjFromShiftName(day, shiftName, name){
+function getShiftObjFromShiftName(day, shiftName, name) {
     return shifts[day][name].find(shift => shift.shift == shiftName);
 }

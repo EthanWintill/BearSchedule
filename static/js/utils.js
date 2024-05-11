@@ -51,7 +51,27 @@ function subtractArrays(small, big) {
     return result;
 }
 
+function getMissingShifts(small, big) {
+    // Create an object to store the count of each element in array a
+    let countMap = {};
+    small.forEach(element => {
+        countMap[element.shift] = (countMap[element.shift] || 0) + 1;
+    });
+
+    // Iterate through array b and subtract elements from a
+    let result = [];
+    big.forEach(element => {
+        if (countMap[element.shift] && countMap[element.shift] > 0) {
+            countMap[element.shift]--;
+        } else {
+            result.push(element);
+        }
+    });
+
+    return result;
+}
+
 
 function timeIsAMorPm(time) {
-    return time<'12:00' ? 'AM' : 'PM';
+    return time<'14:30' ? 'AM' : 'PM';
 }

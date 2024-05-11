@@ -32,13 +32,21 @@ class Schedule(db.Model):
 class Availability(db.Model):
     name = db.Column(db.String(50), nullable=False, primary_key=True)
     week_of = db.Column(db.String(20), nullable=False, primary_key=True)
-    sun = db.Column(db.String(10))
-    mon = db.Column(db.String(10))
-    tue = db.Column(db.String(10))
-    wed = db.Column(db.String(10))
-    thur = db.Column(db.String(10))
-    fri = db.Column(db.String(10))
-    sat = db.Column(db.String(10))
+    sun_start = db.Column(db.String(10))
+    sun_end = db.Column(db.String(10))
+    mon_start = db.Column(db.String(10))
+    mon_end = db.Column(db.String(10))
+    tue_start = db.Column(db.String(10))
+    tue_end = db.Column(db.String(10))
+    wed_start = db.Column(db.String(10))
+    wed_end = db.Column(db.String(10))
+    thu_start = db.Column(db.String(10))
+    thu_end = db.Column(db.String(10))
+    fri_start = db.Column(db.String(10))
+    fri_end = db.Column(db.String(10))
+    sat_start = db.Column(db.String(10))
+    sat_end = db.Column(db.String(10))
+
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
@@ -81,33 +89,49 @@ def get_next_week_availabilites():
 def get_avails_for_week(week_offset=0):
     week_start = get_next_monday()+timedelta(days=week_offset*7-7)
     week_avails = Availability.query.filter(
-        Availability.week_of == week_start).all()
+        Availability.week_of == week_start).all()    
     return week_avails
 
+
+# Takes availabilty dictionary in the form of: avail{ name: {day: {start: time, end: time}} and name of the employee
 def write_availability_to_database(name: str, avail: dict):
     next_monday = get_next_monday()
     prevAvail = Availability.query.filter_by(name=name, week_of=next_monday).first()
     if prevAvail:
         # Update existing record
-        prevAvail.sun = avail['sunday']
-        prevAvail.mon = avail['monday']
-        prevAvail.tue = avail['tuesday']
-        prevAvail.wed = avail['wednesday']
-        prevAvail.thur = avail['thursday']
-        prevAvail.fri = avail['friday']
-        prevAvail.sat = avail['saturday']
+        prevAvail.sun_start = avail['sun']['start']
+        prevAvail.sun_end = avail['sun']['end']
+        prevAvail.mon_start = avail['mon']['start']
+        prevAvail.mon_end = avail['mon']['end']
+        prevAvail.tue_start = avail['tue']['start']
+        prevAvail.tue_end = avail['tue']['end']
+        prevAvail.wed_start = avail['wed']['start']
+        prevAvail.wed_end = avail['wed']['end']
+        prevAvail.thu_start = avail['thu']['start']
+        prevAvail.thu_end = avail['thu']['end']
+        prevAvail.fri_start = avail['fri']['start']
+        prevAvail.fri_end = avail['fri']['end']
+        prevAvail.sat_start = avail['sat']['start']
+        prevAvail.sat_end = avail['sat']['end']
     else:
         # Create a new record
         avail = Availability(
             name=name,
-            week_of = next_monday,
-            sun=avail['sunday'],
-            mon=avail['monday'],
-            tue=avail['tuesday'],
-            wed=avail['wednesday'],
-            thur=avail['thursday'],
-            fri=avail['friday'],
-            sat=avail['saturday'],
+            week_of=next_monday,
+            sun_start=avail['sun']['start'],
+            sun_end=avail['sun']['end'],
+            mon_start=avail['mon']['start'],
+            mon_end=avail['mon']['end'],
+            tue_start=avail['tue']['start'],
+            tue_end=avail['tue']['end'],
+            wed_start=avail['wed']['start'],
+            wed_end=avail['wed']['end'],
+            thu_start=avail['thu']['start'],
+            thu_end=avail['thu']['end'],
+            fri_start=avail['fri']['start'],
+            fri_end=avail['fri']['end'],
+            sat_start=avail['sat']['start'],
+            sat_end=avail['sat']['end'],
         )
         db.session.add(avail)
 
@@ -117,9 +141,11 @@ def write_availability_to_database(name: str, avail: dict):
 def get_avail_of(name: str):
     next_monday = get_next_monday()
     avail = Availability.query.filter_by(week_of = next_monday, name = name).first()
-    print(avail)
-    return avail.as_dict() if avail else None
-    
+    #format data as {day: {start: time, end: time}}
+    if avail is None:
+        return {}
+    fomatted_avail = {day: {'start': getattr(avail, f'{day}_start'), 'end': getattr(avail, f'{day}_end')} for day in ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']}
+    return fomatted_avail    
 
 #schedule
 def get_schedule_for_week(offset=0):
@@ -147,14 +173,14 @@ def removeShift(name: str, day: str, shift: str, week_offset=0):
     db.session.delete(entry)
     db.session.commit()
 
-def addShift(name: str, day: str, shift: str, shift_id: int, week_offset=0):
+def addShift(name: str, day: str, shift_id: int, week_offset=0):
     this_monday = get_next_monday()+timedelta(days=week_offset*7-7)
     relevant_shift = Shift.query.filter_by(id=shift_id).first()
-    entry = Schedule(date=this_monday+timedelta(days=['mon','tue','wed','thu','fri','sat','sun'].index(day)), shift=shift, name=name, shift_id=shift_id, startTime=relevant_shift.startTime, endTime=relevant_shift.endTime)
+    entry = Schedule(date=this_monday+timedelta(days=['mon','tue','wed','thu','fri','sat','sun'].index(day)), shift=relevant_shift.shift, name=name, shift_id=shift_id, startTime=relevant_shift.startTime, endTime=relevant_shift.endTime)
     db.session.add(entry)
     db.session.commit()
 
-def setShiftAsAvailableDb(name: str, day: str, shift: str, week_offset=0):
+def toggleShiftAvailabilityDB(name: str, day: str, shift: str, week_offset=0):
     entry = getScheduleEntry(name, day, shift, week_offset)
     entry.isAvailable = not entry.isAvailable
     db.session.commit()
@@ -170,3 +196,7 @@ def getScheduleEntry(name: str, day: str, shift: str, week_offset=0):
 def get_name_from_number(number: str):
     record = User.query.filter_by(phone = number).first()
     return None if record is None else str(record.username)
+
+def get_number_from_name(name: str):
+    record = User.query.filter_by(username = name).first()
+    return None if record is None else str(record.phone)

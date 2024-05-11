@@ -6,34 +6,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function existingShiftClicked(name, day, shift) {
     let shiftDiv = document.getElementById(day + '_' + shift + '_' + name);
+    let shiftObj = getScheduleEntry(name, day, shift);
     if(name == username){
-        setShiftAsAvailable(day, shift, name);
+        toggleShiftAvailabilityDB(day, shift, name)
     }else if(shiftDiv.classList.contains('isAvailable')){
-        let formatted_day = day.slice(0,3).toLowerCase();
-        formatted_day = (formatted_day == 'thu') ? 'thur' : formatted_day;
-        removeShift(name, day.slice(0,3), shift);
-        addShift(username,formatted_day,shift);
-        window.location.reload();
+        sendShiftClaimRequest(username, shiftObj);
     }else{
         alert("Nice try, bucko! You can only remove your own shifts.");
     }
 }
 
 
-function unassignedShiftClicked(day, shift){
-    let shiftDiv = document.getElementsByClassName('unscheduled-shift '+day+'_'+shift)[0];
+function unassignedShiftClicked(shiftObj){
+    let shiftDiv = document.getElementsByClassName('unscheduled-shift '+shiftObj.day+'_'+shiftObj.shift)[0];
     shiftDiv.remove();
-    let formatted_day = day.slice(0,3).toLowerCase();
-    formatted_day = (formatted_day == 'thu') ? 'thur' : formatted_day;
-    addShift(username,formatted_day,shift);
+    addShift(shiftObj,username);
     window.location.reload()
 }
 
 function highlightOwnedShifts(){
     for(let day in schedule){
-        for(let shift of schedule[day]){
-            if(shift[1] == username){
-                let shiftDiv = document.getElementById(day+'_'+shift[0]+'_'+shift[1]);
+        for(let shiftObj of schedule[day]){
+            if(shiftObj.name == username){
+                let shiftDiv = document.getElementById(day+'_'+shiftObj.shift+'_'+shiftObj.name);
                 shiftDiv.classList.add('red');
                 if(shiftDiv.classList.contains('isAvailable')){
                     shiftDiv.setAttribute( 'data-tooltip', 'This shift is available to others. Click to claim it.');
@@ -46,12 +41,31 @@ function highlightOwnedShifts(){
 }
 
 
+function sendShiftClaimRequest(name, shiftObj){
+    fetch('/shift_transfer_request',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "name": name,
+                "shift_id": shiftObj.id
+            }),
+        }).then(response => {
+            console.log(response);
+        }).catch(error => {
+            console.error('Error:', error);
+            console.log(response.json());
+            alert('Beep Boop! Error claiming shift. Try again.');
+        });
+
+}
 
 
-
-function setShiftAsAvailable(day, shift, name){
+function toggleShiftAvailabilityDB(day, shift, name){
     let week_offset = parseInt(window.location.href.split('/').pop()) // Nan if no route param
-    fetch('/setShiftAsAvailable',
+    fetch('/toggleShiftAvailability',
         {
             method: 'POST',
             headers: {
@@ -71,3 +85,4 @@ function setShiftAsAvailable(day, shift, name){
             alert('Beep Boop! Error setting shift as available. Try again.');
         });
 }
+

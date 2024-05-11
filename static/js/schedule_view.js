@@ -23,7 +23,7 @@ function AddUnassignedShift(day, shiftObj) {
 
     shiftDiv.setAttribute('onclick', 'unassignedShiftClicked(' + JSON.stringify(shiftObj) + ')');
 
-    sideOfDay = timeIsAMorPm(shiftObj.shift) 
+    sideOfDay = timeIsAMorPm(shiftObj.startTime) 
 
     insertChildAlphabetically(document.getElementById(shiftObj.day + '_' + sideOfDay), shiftDiv);
 }
@@ -86,26 +86,9 @@ function fillGaps() {
     }
 }
 
-function getMissingShifts(small, big) {
-    // Create an object to store the count of each element in array a
-    let countMap = {};
-    small.forEach(element => {
-        countMap[element.shift] = (countMap[element.shift] || 0) + 1;
-    });
-
-    // Iterate through array b and subtract elements from a
-    let result = [];
-    big.forEach(element => {
-        if (countMap[element.shift] && countMap[element.shift] > 0) {
-            countMap[element.shift]--;
-        } else {
-            result.push(element);
-        }
-    });
-
-    return result;
+function getScheduleEntry(name, day, shift) {
+    return schedule[day].find(entry => entry.name == name && entry.shift == shift);
 }
-
 
 function textSchedule(){
     fetch('/text-schedule',{

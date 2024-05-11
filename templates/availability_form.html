@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script src="static/js/availability.js"></script>
 
 <main class="container">
 
@@ -23,56 +22,87 @@
         <table>
             <thead>
                 <tr>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                    <th>Saturday</th>
-                    <th>Sunday</th>
+                    <th onclick="checkBoth('mon')">Monday</th>
+                    <th onclick="checkBoth('tue')">Tuesday</th>
+                    <th onclick="checkBoth('wed')">Wednesday</th>
+                    <th onclick="checkBoth('thu')">Thursday</th>
+                    <th onclick="checkBoth('fri')">Friday</th>
+                    <th onclick="checkBoth('sat')">Saturday</th>
+                    <th onclick="checkBoth('sun')">Sunday</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>
-                        <label><input type="checkbox" name="monday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="monday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="mon-av-AM" value="AM" id="mon-av-AM"> AM</label>
+                        <label><input type="checkbox" name="mon-av-PM" value="PM" id="mon-av-PM"> PM</label>
                     </td>
                     <td>
-                        <label><input type="checkbox" name="tuesday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="tuesday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="tue-av-AM" value="AM" id="tue-av-AM"> AM</label>
+                        <label><input type="checkbox" name="tue-av-PM" value="PM" id="tue-av-PM"> PM</label>
                     </td>
                     <td>
-                        <label><input type="checkbox" name="wednesday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="wednesday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="wed-av-AM" value="AM" id="wed-av-AM"> AM</label>
+                        <label><input type="checkbox" name="wed-av-PM" value="PM" id="wed-av-PM"> PM</label>
                     </td>
                     <td>
-                        <label><input type="checkbox" name="thursday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="thursday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="thu-av-AM" value="AM" id="thu-av-AM"> AM</label>
+                        <label><input type="checkbox" name="thu-av-PM" value="PM" id="thu-av-PM"> PM</label>
                     </td>
                     <td>
-                        <label><input type="checkbox" name="friday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="friday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="fri-av-AM" value="AM" id="fri-av-AM"> AM</label>
+                        <label><input type="checkbox" name="fri-av-PM" value="PM" id="fri-av-PM"> PM</label>
                     </td>
                     <td>
-                        <label><input type="checkbox" name="saturday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="saturday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="sat-av-AM" value="AM" id="sat-av-AM"> AM</label>
+                        <label><input type="checkbox" name="sat-av-PM" value="PM" id="sat-av-PM"> PM</label>
                     </td>
                     <td>
-                        <label><input type="checkbox" name="sunday-av[]" value="AM"> AM</label>
-                        <label><input type="checkbox" name="sunday-av[]" value="PM"> PM</label>
+                        <label><input type="checkbox" name="sun-av-AM" value="AM" id="sun-av-AM"> AM</label>
+                        <label><input type="checkbox" name="sun-av-PM" value="PM" id="sun-av-PM"> PM</label>
                     </td>
+                    </td>
+                </tr>
                 </tr>
             </tbody>
         </table>
         <div class="grid">
-            <div></div>
+            <button type="button" class="contrast" onclick="document.querySelector('dialog').open = true;" >Enter Custom Value</button>
             <div></div>
             <button type="button" class="secondary" onclick="cancelForm()">Cancel</button>
             <button type="submit">Submit</button>
         </div>
     </form>
+
+    <dialog>
+        <article>
+            <h2>Add Custom Availability</h2>
+            <form id="customAvail" onsubmit="customAvailability(event)">
+                <label for="start">Start Time:</label>
+                <input type="time" id="start" name="start" required>
+                <label for="end">End Time:</label>
+                <input type="time" id="end" name="end" required>
+                <select id="day" name="day" required>
+                    <option value="mon">Monday</option>
+                    <option value="tue">Tuesday</option>
+                    <option value="wed">Wednesday</option>
+                    <option value="thu">Thursday</option>
+                    <option value="fri">Friday</option>
+                    <option value="sat">Saturday</option>
+                    <option value="sun">Sunday</option>
+                </select>
+
+                <footer class="grid">
+                    <button class="secondary" onclick="document.querySelector('dialog').open = false;" type="button">
+                        Cancel
+                    </button>
+                    <button type="submit">Confirm</button>
+                </footer>
+            </form>
+        </article>
+    </dialog>
 </main>
 
+<script src="static/js/availability.js"></script>
 
 {%endblock%}

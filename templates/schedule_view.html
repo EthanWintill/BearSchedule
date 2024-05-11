@@ -100,7 +100,6 @@
 <h3>Next Week's Availability</h3>
 <table>
     <tr>
-        <th>Name</th>
         <th>Sunday</th>
         <th>Monday</th>
         <th>Tuesday</th>
@@ -111,7 +110,11 @@
     </tr>
     <tr>
         {% for day, avail in user_avail.items() %}
-        <td>{{avail}}</td>
+        {% if avail['start']=='11PM' and avail['end']=='12AM' %}
+        <td>None</td>
+        {% else %}
+        <td>{{avail['start']}}-{{avail['end']}}</td>
+        {% endif %}
         {% endfor %}
     </tr>
 </table>
