@@ -58,9 +58,5 @@ function toggleCheck(day, AmOrPm){
     check.toggleAttribute("checked");
 
     let checkDiv = document.getElementById(`${day}-div-${AmOrPm}`);
-    if(checkDiv.classList.contains('checked')){
-        checkDiv.classList.remove('checked');
-    }else{
-        checkDiv.classList.add('checked');
-    }
+    universal_toggle(checkDiv);
 }

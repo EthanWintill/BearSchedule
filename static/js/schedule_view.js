@@ -96,5 +96,11 @@ function textSchedule(){
         headers: {
             'Content-Type': 'application/json',
         }
+    }).then(response => {
+        console.log(response);
+        alert('Schedule sent!');
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('Beep Boop! Error sending text. Try again.');
     })
 }

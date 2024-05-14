@@ -75,3 +75,12 @@ function getMissingShifts(small, big) {
 function timeIsAMorPm(time) {
     return time<'14:30' ? 'AM' : 'PM';
 }
+
+
+function universal_toggle(checkDiv){
+    if(checkDiv.classList.contains('checked')){
+        checkDiv.classList.remove('checked');
+    }else{
+        checkDiv.classList.add('checked');
+    }
+}

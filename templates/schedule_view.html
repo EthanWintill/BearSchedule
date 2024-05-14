@@ -36,7 +36,7 @@
     <div class="wrapper-nxt-prv">
         <button class="outline contrast" onclick="modifyRouteParam(-1)">
             < </button>
-                <table style="margin-bottom: 0;">
+                <table style="margin-bottom: 0;" class="schedule-view">
                     <tbody>
                         <tr>
                             <th>Shift</th>
@@ -48,6 +48,7 @@
                             <td>AM</td>
                             {% for day, shifts in schedule.items() %}
                             <td id="{{day[0:3].lower()}}_AM">
+
                                 {% for shift in shifts %}
                                 {% if shift['shift'][1] != '5' %}
                                 {% if shift['isAvailable'] %}
@@ -100,7 +101,7 @@
 </main>
 
 <div class="container">
-{% if username != 'admin' %}
+    {% if username != 'admin' %}
     <h3>Next Week's Availability</h3>
     <table>
         <tr>

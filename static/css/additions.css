@@ -7,6 +7,7 @@
     border-radius: 0.25em;
     margin-bottom: 0.75rem;
     text-align: center;
+    cursor: pointer;
 }
 
 .shift_req_input {
@@ -39,13 +40,17 @@
     background-color: hsl(195, 85%, 41%);
 }
 
-td,
-th {
+td, th {
     min-width: 7em;
     max-width: 9em;
     border-inline: 1px solid #1f2d38;
     padding-inline: .75em;
     /* border-bottom: none; */
+}
+
+.schedule-view td, .schedule-view th {
+    min-width: 9em;
+    max-width: 11em;
 }
 
 .avail-div {
@@ -98,7 +103,7 @@ th {
 
 .red:hover {
     background-color: #fe6666;
-    border: 2px solid #fbfbfb;
+    outline: 2px solid #fbfbfb;
 }
 
 .scheduled-shift.red:hover {
@@ -111,6 +116,5 @@ th {
 
 .unscheduled-shift:hover {
     background-color: #66feb7;
-    border: 2px solid #fbfbfb;
-    margin-bottom: 7px;
+    outline: 2px solid #fbfbfb;
 }

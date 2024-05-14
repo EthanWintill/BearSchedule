@@ -231,8 +231,8 @@ def checkAvail(shift, name, day, avails):
 @login_required
 @app.route('/settings', methods=['GET' , 'POST', 'DELETE'])
 def settings():
+    days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
     if request.method == 'POST':
-        days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
         start = request.form['start']
         end = request.form['end']
         shift_type = request.form['type']
@@ -241,7 +241,6 @@ def settings():
         formatted_type = '' if shift_type == 'S' else shift_type
         shift = f'{formatted_start}-{formatted_end}{formatted_type}'
         print(request.form)
-        print(days_of_week)
         for day in days_of_week:
             if day in request.form:
                 addScheduleShift(day, shift, start, end, shift_type)
@@ -251,7 +250,7 @@ def settings():
         shift = data['shift']
         removeScheduleShift(day, shift)
         
-    return render_template('settings.html', needed_shifts = getShifts(), username = current_user.username)
+    return render_template('settings.html', needed_shifts = getShifts(), username = current_user.username, days_of_week=days_of_week, cap_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
 
 if __name__ == '__main__':
     app.run(debug=True)

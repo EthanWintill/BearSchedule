@@ -1,4 +1,8 @@
-
+function toggleShiftCheck(element){
+    universal_toggle(element);
+    let checkbox = element.querySelector('input');
+    checkbox.toggleAttribute("checked");
+}
 
 
 function removeReqShift(day, shift) {

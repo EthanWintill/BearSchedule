@@ -2,6 +2,7 @@
 
 {% block content %}
 <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
 
 
@@ -24,7 +25,7 @@
             {% for day in needed_shifts %}
             <td>
                 {% for shift in needed_shifts[day] %}
-                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift}}')">{{ shift.shift }}</div>
+                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift.shift}}')">{{ shift.shift }}</div>
                 {% endfor %}
             </td>
             {% endfor %}
@@ -48,29 +49,15 @@
                     <option value="T">Training</option>
                     <option value="H">Host</option>
                 </select>
-                
-                <fieldset role="group">
-                    <input type="checkbox" id="modal-mon" name="mon" value="mon">
-                    <label for="modal-mon">Mon</label>
-                    <input type="checkbox" id="modal-tue" name="tue" value="tue">
-                    <label for="modal-tue">Tue</label>
-                    <input type="checkbox" id="modal-wed" name="wed" value="wed">
-                    <label for="modal-wed">Wed</label>
-                    <input type="checkbox" id="modal-thu" name="thu" value="thu">
-                    <label for="modal-thu">Thu</label>
-                    <input type="checkbox" id="modal-fri" name="fri" value="fri">
-                    <label for="modal-fri">Fri</label>
-                    <input type="checkbox" id="modal-sat" name="sat" value="sat">
-                    <label for="modal-sat">Sat</label>
-                    <input type="checkbox" id="modal-sun" name="sun" value="sun">
-                    <label for="modal-sun">Sun</label>
-                </fieldset>
 
-                <!-- <div role="group">
-                    <button>Button</button>
-                    <button>Button</button>
-                    <button>Button</button>
-                  </div> -->
+                <div role="group">
+                    {% for day in days_of_week %}
+                    <div role="button" id="model-div-{{day}}" class="contrast outline avail-div" onclick="toggleShiftCheck(this)">
+                        <label for="modal-{{day}}">{{day.capitalize()}}</label>
+                        <input type="checkbox" id="modal-{{day}}" name="{{day}}" value="{{day}}" style="display: none;">
+                    </div>
+                    {% endfor %}
+                </div>
                   
                   
             <footer class="grid">

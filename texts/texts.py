@@ -27,7 +27,6 @@ def sms():
     sender_number = int(request.form['From'][-10:]) #cut off country code
     sender_name = get_name_from_number(sender_number)
 
-    sender_name = 'admin' #comment this out for production
     if sender_name =='admin' and ((message_body.upper()) == 'Y' or (message_body.upper()) == 'N'):
         approve_or_deny_shift_trade(message_body, sender_number)
         return 'Shift transfer request resolved', 200
@@ -77,13 +76,14 @@ def text_schedule_route():
 def text_schedule(schedule):
     phone_numbers = User.query.with_entities(User.phone).all()
     recipients = ['8329199116'] #[phone[0] for phone in phone_numbers]
-    message_body = 'SCHEDULE\n-------------------------------\n'
+    message_body = 'SCHEDULE\n'
     for day, shiftObjs in schedule.items():
-        message_body += f'{day.upper()}\n'
+        message_body += f'\n-----------{day.upper()}----------\n'
         for shiftObj in shiftObjs:
-            print(shiftObj)
             message_body+= f'{shiftObj["shift"]}\t{shiftObj["name"]}\n'
-        message_body += '-------------------------------\n'
+
+    message_body += f'-------------------------------'
+        
     for number in recipients:
         try:
             message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=number )
