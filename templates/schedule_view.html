@@ -25,11 +25,18 @@
 
     <h1>Welcome, {{ username }}</h1>
 
-    <h3>Schedule for week of {{next_monday.strftime("%B %d, %Y") }}</h3>
+    <div class="grid">
+        <h3>Schedule for week of {{next_monday.strftime("%B %d, %Y") }}</h3>
+        <div class="grid">
+            <div></div>
+            <div></div>
+            <button onclick="textSchedule()" class="contrast">Text Schedule</button>
+        </div>
+    </div>
     <div class="wrapper-nxt-prv">
         <button class="outline contrast" onclick="modifyRouteParam(-1)">
             < </button>
-                <table style="margin-bottom: 0;">
+                <table style="margin-bottom: 0;" class="schedule-view">
                     <tbody>
                         <tr>
                             <th>Shift</th>
@@ -40,21 +47,21 @@
                         <tr>
                             <td>AM</td>
                             {% for day, shifts in schedule.items() %}
-                            <td id="{{day}}_AM">
+                            <td id="{{day[0:3].lower()}}_AM">
+
                                 {% for shift in shifts %}
-                                {% if shift.0[0] != '5' %}
-                                {% if shift.2 %}
-                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}} isAvailable"
-                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
-                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
-                                    shift.0
-                                    }}: {{ shift.1 }}</div>
+                                {% if shift['shift'][1] != '5' %}
+                                {% if shift['isAvailable'] %}
+                                <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}} isAvailable"
+                                    id="{{day}}_{{shift.shift}}_{{shift.name}}"
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{shift.shift }}: {{ shift.name }}</div>
                                 {% else %}
-                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}}"
-                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
-                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
-                                    shift.0
-                                    }}: {{ shift.1 }}</div>
+                                <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}}"
+                                    id="{{day}}_{{shift.shift}}_{{shift.name}}"
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{
+                                    shift.shift }}: {{ shift.name }}</div>
                                 {% endif %}
                                 {% endif %}
                                 {% endfor %}
@@ -64,21 +71,21 @@
                         <tr>
                             <td>PM</td>
                             {% for day, shifts in schedule.items() %}
-                            <td id="{{day}}_PM">
+                            <td id="{{day[0:3].lower()}}_PM">
                                 {% for shift in shifts %}
-                                {% if shift.0[0] == '5' %}
-                                {% if shift.2 %}
-                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}} isAvailable"
-                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
-                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
-                                    shift.0
-                                    }}: {{ shift.1 }}</div>
+                                {% if shift['shift'][1] == '5' %}
+                                {% if shift['isAvailable'] %}
+                                <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}} isAvailable"
+                                    id="{{day}}_{{shift.shift}}_{{shift.name}}"
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{
+                                    shift.shift }}: {{ shift.name }}</div>
                                 {% else %}
-                                <div class="scheduled-shift {{day}}_{{shift.0}}_{{shift.1}}"
-                                    id="{{day}}_{{shift.0}}_{{shift.1}}"
-                                    onclick="existingShiftClicked('{{ shift.1 }}', '{{ day }}', '{{ shift.0 }}')">{{
-                                    shift.0
-                                    }}: {{ shift.1 }}</div>
+                                <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}}"
+                                    id="{{day}}_{{shift.shift}}_{{shift.name}}"
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{
+                                    shift.shift }}: {{ shift.name }}</div>
                                 {%endif%}
                                 {% endif %}
                                 {% endfor %}
@@ -93,11 +100,11 @@
     <cite>*Editable</cite>
 </main>
 
+<div class="container">
     {% if username != 'admin' %}
     <h3>Next Week's Availability</h3>
     <table>
         <tr>
-            <th>Name</th>
             <th>Sunday</th>
             <th>Monday</th>
             <th>Tuesday</th>
@@ -108,7 +115,11 @@
         </tr>
         <tr>
             {% for day, avail in user_avail.items() %}
-            <td>{{avail}}</td>
+            {% if avail['start']=='11PM' and avail['end']=='12AM' %}
+            <td>None</td>
+            {% else %}
+            <td>{{avail['start']}}-{{avail['end']}}</td>
+            {% endif %}
             {% endfor %}
         </tr>
     </table>
@@ -131,12 +142,7 @@
         </form>
         {%endif%}
     </div>
-    <!-- Select -->
-
-<footer class="container">
-
-
-</footer>
+</div>
 
 
 {%endblock%}

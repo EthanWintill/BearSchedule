@@ -1,16 +1,19 @@
 :root {
-    --checkbox-width: 3.5em
+    --checkbox-width: 3.75em
 }
+
 .shift_req_container {
     border: 2px solid #374956;
     border-radius: 0.25em;
     margin-bottom: 0.75rem;
-    text-align: center; 
+    text-align: center;
+    cursor: pointer;
 }
+
 .shift_req_input {
     border: 2px solid #374956;
     border-radius: 0.25em;
-    text-align: center; 
+    text-align: center;
 }
 
 .checkbox-div {
@@ -21,26 +24,43 @@
     width: var(--checkbox-width);
 }
 
-.checkbox-div:hover {
+.checkbox-div:hover,
+.avail-div:hover {
     background-color: #f0f0f0;
 }
 
 .checkbox-div label {
     margin-bottom: 0px;
+    font-size: 15px;
 }
 
 
-.checkbox-div.checked {
+.checkbox-div.checked,
+.avail-div.checked {
     background-color: hsl(195, 85%, 41%);
 }
 
-td,
-th {
+td, th {
     min-width: 7em;
     max-width: 9em;
     border-inline: 1px solid #1f2d38;
     padding-inline: .75em;
     /* border-bottom: none; */
+}
+
+.schedule-view td, .schedule-view th {
+    min-width: 9em;
+    max-width: 11em;
+}
+
+.avail-div {
+    cursor: pointer;
+    text-align: center;
+    padding: 5px;
+}
+
+.avail-div label {
+    font-size: 30px;
 }
 
 .avail-select-wrapper h1 {
@@ -76,13 +96,14 @@ th {
     margin-bottom: auto;
 }
 
-.scheduled-shift, .unscheduled-shift{
+.scheduled-shift,
+.unscheduled-shift {
     margin-bottom: 11px;
 }
 
 .red:hover {
     background-color: #fe6666;
-    border: 2px solid #fbfbfb;
+    outline: 2px solid #fbfbfb;
 }
 
 .scheduled-shift.red:hover {
@@ -95,6 +116,5 @@ th {
 
 .unscheduled-shift:hover {
     background-color: #66feb7;
-    border: 2px solid #fbfbfb;
-    margin-bottom: 7px;
+    outline: 2px solid #fbfbfb;
 }

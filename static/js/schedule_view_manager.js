@@ -1,15 +1,15 @@
 
 
-function showDropdown(day,shift){
-    let formatted_day = day.slice(0,3).toLowerCase();
-    formatted_day = (formatted_day == 'thu') ? 'thur' : formatted_day;
-    let sideOfDay = shift[0]=='5'? 'PM':'AM';
+function showDropdown(shiftObj){
+    let day = shiftObj.day;
+    let shift = shiftObj.shift;
+    let sideOfDay = timeIsAMorPm(shiftObj.startTime);
     let td = document.getElementById(day+'_'+sideOfDay);
 
     //create a dropdown with all the staff names
     let dropdown = document.createElement('select');
     dropdown.classList.add('staff-dropdown-shifts');
-    dropdown.setAttribute('onchange', 'dropdownOptionSelected("'+formatted_day+'","'+shift+'",this.value)'); 
+    dropdown.setAttribute('onchange', 'dropdownOptionSelected('+ JSON.stringify(shiftObj) +',this.value)'); 
     //add options to the dropdown
     for(let name of names){
         let option = document.createElement('option');
@@ -21,14 +21,16 @@ function showDropdown(day,shift){
     td.appendChild(dropdown);
 }
 
-function unassignedShiftClicked(day, shift){
-    showDropdown(day,shift);
+function unassignedShiftClicked(shiftObj){
+    let day = shiftObj.day;
+    let shift = shiftObj.shift;
+    showDropdown(shiftObj);
     let shiftDiv = document.getElementsByClassName('unscheduled-shift '+day+'_'+shift)[0];
     shiftDiv.remove();
 }
 
-function dropdownOptionSelected(day,shift,name){
-    addShift(name,day,shift)
+function dropdownOptionSelected(shiftObj,name){
+    addShift(shiftObj, name)
     window.location.reload()
 }
 

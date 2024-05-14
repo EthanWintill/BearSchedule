@@ -1,4 +1,8 @@
-
+function toggleShiftCheck(element){
+    universal_toggle(element);
+    let checkbox = element.querySelector('input');
+    checkbox.toggleAttribute("checked");
+}
 
 
 function removeReqShift(day, shift) {
@@ -13,24 +17,7 @@ function removeReqShift(day, shift) {
         })
     }).then(() => {
         setTimeout(() => {
-            window.location.reload();
-        }, 200);
-    });
-}
-
-function addReqShift(day, shift) {
-    fetch('/settings', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "day": day,
-            "shift": shift
-        })
-    }).then(() => {
-        setTimeout(() => {
-            window.location.reload();
+            window.location.href = '/settings';
         }, 200);
     });
 }

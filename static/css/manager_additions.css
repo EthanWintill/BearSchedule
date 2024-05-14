@@ -1,6 +1,6 @@
 .scheduled-shift:hover {
     background-color: #fe6666;
-    border: 2px solid #fbfbfb;
-    margin-bottom: 7px;
+    outline: 2px solid #fbfbfb;
+    /* margin-bottom: 7px; */
 }
 

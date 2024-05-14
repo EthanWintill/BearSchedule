@@ -8,7 +8,8 @@
     window.avails = '{{availabilities | tojson | safe }}'
 </script>
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-<script src="{{ url_for('static', filename='js/newschedule.js') }}"></script>
+<script src="{{ url_for('static', filename='js/newschedule/newschedule.js') }}"></script>
+<script src="{{ url_for('static', filename='js/newschedule/newschedule_dom.js') }}"></script>
 
 {%endblock%}
 
@@ -21,7 +22,7 @@
 
     
     <form method="POST">
-        <table>
+        <table class="newschedule-table">
             <tr>
                 <th scope="col">User</th>
                 {% for day in days %}

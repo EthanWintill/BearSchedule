@@ -2,6 +2,7 @@
 
 {% block content %}
 <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
 
 
@@ -24,15 +25,51 @@
             {% for day in needed_shifts %}
             <td>
                 {% for shift in needed_shifts[day] %}
-                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift}}')">{{ shift }}</div>
+                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift.shift}}')">{{ shift.shift }}</div>
                 {% endfor %}
-                <input class="shift_req_input" type="text" id="shiftInput_{{day}}" placeholder="New shift"
-                    onkeydown="if (event.keyCode === 13) { addReqShift('{{day}}', document.getElementById('shiftInput_{{day}}').value); }"
-                    style="padding: 0%; height: 1.25rem;">
             </td>
             {% endfor %}
         </tr>
     </table>
+    <div class="grid">
+        <div></div><div></div><div></div>
+        <button class="primary" id="shiftInput_{{day}}" onclick="document.querySelector('dialog').open = true;">New Shift</button></div>
+
+    <dialog>
+        <article>
+            <h2>Add New Required Shift</h2>
+            <form action="/settings" method="post">
+                <label for="start">Start Time:</label>
+                <input type="time" id="start" name="start" required>
+                <label for="end">End Time:</label>
+                <input type="time" id="end" name="end" required>
+                <label for="type">Shift Type:</label>
+                <select id="type" name="type" required>
+                    <option value="S" selected>Serving</option>
+                    <option value="T">Training</option>
+                    <option value="H">Host</option>
+                </select>
+
+                <div role="group">
+                    {% for day in days_of_week %}
+                    <div role="button" id="model-div-{{day}}" class="contrast outline avail-div" onclick="toggleShiftCheck(this)">
+                        <label for="modal-{{day}}">{{day.capitalize()}}</label>
+                        <input type="checkbox" id="modal-{{day}}" name="{{day}}" value="{{day}}" style="display: none;">
+                    </div>
+                    {% endfor %}
+                </div>
+                  
+                  
+            <footer class="grid">
+                <button class="secondary" onclick="document.querySelector('dialog').open = false;" type="button">
+                    Cancel
+                </button>
+                <button type="submit" >Confirm</button>
+            </footer>
+            </form>
+        </article>
+    </dialog>
+
     {%endif%}
 </main>
 
