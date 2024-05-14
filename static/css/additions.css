@@ -51,6 +51,7 @@ td, th {
 .schedule-view td, .schedule-view th {
     min-width: 9em;
     max-width: 11em;
+    cursor: pointer;
 }
 
 .avail-div {
