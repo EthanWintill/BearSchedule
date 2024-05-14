@@ -43,7 +43,7 @@ def index():
 @app.route('/availability_form', methods=['GET'])
 def availability_form():
     users = [user.username for user in User.query.all()]
-    return render_template('availability_form.html', username = current_user.username, names = users)
+    return render_template('availability_form.html', username = current_user.username, names = users, days_of_week=['mon','tue','wed','thu','fri','sat','sun'])
 
 @login_required
 @app.route('/submit_availability', methods=['POST'])

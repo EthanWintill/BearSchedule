@@ -27,7 +27,7 @@ def sms():
     sender_number = int(request.form['From'][-10:]) #cut off country code
     sender_name = get_name_from_number(sender_number)
 
-    sender_name = 'admin' #comment this out for testing
+    sender_name = 'admin' #comment this out for production
     if sender_name =='admin' and ((message_body.upper()) == 'Y' or (message_body.upper()) == 'N'):
         approve_or_deny_shift_trade(message_body, sender_number)
         return 'Shift transfer request resolved', 200

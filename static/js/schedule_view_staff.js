@@ -30,11 +30,17 @@ function highlightOwnedShifts(){
             if(shiftObj.name == username){
                 let shiftDiv = document.getElementById(day+'_'+shiftObj.shift+'_'+shiftObj.name);
                 shiftDiv.classList.add('red');
+
+                if(shiftObj.shift.slice(-1) == 'H'){
+                    shiftDiv.classList.add('host');
+                }
+
                 if(shiftDiv.classList.contains('isAvailable')){
                     shiftDiv.setAttribute( 'data-tooltip', 'This shift is available to others. Click to claim it.');
                 }else{
                 shiftDiv.setAttribute( 'data-tooltip', 'Click to make shift available');
                 }
+                shiftDiv.setAttribute('style', 'border: 1px solid #ffffff')
             }
         }
     }

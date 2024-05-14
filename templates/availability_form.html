@@ -32,40 +32,24 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <label><input type="checkbox" name="mon-av-AM" value="AM" id="mon-av-AM"> AM</label>
-                        <label><input type="checkbox" name="mon-av-PM" value="PM" id="mon-av-PM"> PM</label>
+                <tr class="AM">
+                    {% for day in days_of_week %}
+                    <td class="avail-div" id="{{day}}-div-AM" onclick="toggleCheck('{{day}}','AM')">
+                        <input type="checkbox" name="{{day}}-av-AM" value="AM" id="{{day}}-av-AM" style="display: none;">
+                        <label id="{{day}}-label-AM"> AM</label>
                     </td>
-                    <td>
-                        <label><input type="checkbox" name="tue-av-AM" value="AM" id="tue-av-AM"> AM</label>
-                        <label><input type="checkbox" name="tue-av-PM" value="PM" id="tue-av-PM"> PM</label>
-                    </td>
-                    <td>
-                        <label><input type="checkbox" name="wed-av-AM" value="AM" id="wed-av-AM"> AM</label>
-                        <label><input type="checkbox" name="wed-av-PM" value="PM" id="wed-av-PM"> PM</label>
-                    </td>
-                    <td>
-                        <label><input type="checkbox" name="thu-av-AM" value="AM" id="thu-av-AM"> AM</label>
-                        <label><input type="checkbox" name="thu-av-PM" value="PM" id="thu-av-PM"> PM</label>
-                    </td>
-                    <td>
-                        <label><input type="checkbox" name="fri-av-AM" value="AM" id="fri-av-AM"> AM</label>
-                        <label><input type="checkbox" name="fri-av-PM" value="PM" id="fri-av-PM"> PM</label>
-                    </td>
-                    <td>
-                        <label><input type="checkbox" name="sat-av-AM" value="AM" id="sat-av-AM"> AM</label>
-                        <label><input type="checkbox" name="sat-av-PM" value="PM" id="sat-av-PM"> PM</label>
-                    </td>
-                    <td>
-                        <label><input type="checkbox" name="sun-av-AM" value="AM" id="sun-av-AM"> AM</label>
-                        <label><input type="checkbox" name="sun-av-PM" value="PM" id="sun-av-PM"> PM</label>
-                    </td>
-                    </td>
+                    {% endfor %}
                 </tr>
+                <tr class="PM"></tr>
+                {% for day in days_of_week %}
+                <td class="avail-div" id="{{day}}-div-PM" onclick="toggleCheck('{{day}}','PM')">
+                    <input type="checkbox" name="{{day}}-av-PM" value="PM" id="{{day}}-av-PM" style="display: none;">
+                    <label id="{{day}}-label-PM"> PM</label>
+            </td>
+                {% endfor %}
                 </tr>
             </tbody>
-        </table>
+            </table>
         <div class="grid">
             <button type="button" class="contrast" onclick="document.querySelector('dialog').open = true;" >Enter Custom Value</button>
             <div></div>

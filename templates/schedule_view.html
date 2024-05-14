@@ -58,7 +58,8 @@
                                 {% else %}
                                 <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}}"
                                     id="{{day}}_{{shift.shift}}_{{shift.name}}"
-                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">{{
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{
                                     shift.shift }}: {{ shift.name }}</div>
                                 {% endif %}
                                 {% endif %}
@@ -75,12 +76,14 @@
                                 {% if shift['isAvailable'] %}
                                 <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}} isAvailable"
                                     id="{{day}}_{{shift.shift}}_{{shift.name}}"
-                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">{{
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{
                                     shift.shift }}: {{ shift.name }}</div>
                                 {% else %}
                                 <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}}"
                                     id="{{day}}_{{shift.shift}}_{{shift.name}}"
-                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">{{
+                                    onclick="existingShiftClicked('{{ shift.name }}', '{{ day }}', '{{ shift.shift }}')">
+                                    {{
                                     shift.shift }}: {{ shift.name }}</div>
                                 {%endif%}
                                 {% endif %}
@@ -96,53 +99,49 @@
     <cite>*Editable</cite>
 </main>
 
+<div class="container">
 {% if username != 'admin' %}
-<h3>Next Week's Availability</h3>
-<table>
-    <tr>
-        <th>Sunday</th>
-        <th>Monday</th>
-        <th>Tuesday</th>
-        <th>Wednesday</th>
-        <th>Thursday</th>
-        <th>Friday</th>
-        <th>Saturday</th>
-    </tr>
-    <tr>
-        {% for day, avail in user_avail.items() %}
-        {% if avail['start']=='11PM' and avail['end']=='12AM' %}
-        <td>None</td>
+    <h3>Next Week's Availability</h3>
+    <table>
+        <tr>
+            <th>Sunday</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+        </tr>
+        <tr>
+            {% for day, avail in user_avail.items() %}
+            {% if avail['start']=='11PM' and avail['end']=='12AM' %}
+            <td>None</td>
+            {% else %}
+            <td>{{avail['start']}}-{{avail['end']}}</td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+    </table>
+
+    {% endif %}
+    <div class="grid">
+        <div></div>
+        <div></div>
+        <div></div>
+        {% if username=='admin' %}
+        <form action="/availability_form" method="GET">
+            <button class="secondary" type="submit">Enter Availability</button>
+        </form>
+        <form action="/newschedule" method="GET">
+            <button type="submit">Create Schedule</button>
+        </form>
         {% else %}
-        <td>{{avail['start']}}-{{avail['end']}}</td>
-        {% endif %}
-        {% endfor %}
-    </tr>
-</table>
-
-{% endif %}
-<div class="grid">
-    <div></div>
-    <div></div>
-    <div></div>
-    {% if username=='admin' %}
-    <form action="/availability_form" method="GET">
-        <button class="secondary" type="submit">Enter Availability</button>
-    </form>
-    <form action="/newschedule" method="GET">
-        <button type="submit">Create Schedule</button>
-    </form>
-    {% else %}
-    <form action="/availability_form" method="GET">
-        <button type="submit">Enter Availability</button>
-    </form>
-    {%endif%}
+        <form action="/availability_form" method="GET">
+            <button type="submit">Enter Availability</button>
+        </form>
+        {%endif%}
+    </div>
 </div>
-<!-- Select -->
-
-<footer class="container">
-
-
-</footer>
 
 
 {%endblock%}
