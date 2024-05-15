@@ -1,15 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script>
+    window.user_info = ('{{ user_info | tojson | safe }}');
+</script>
 <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-
 
 
 <main class="container">
     <h1>Settings</h1>
     <br>
-    {% if username=='admin' %}
+    <article>
+        <header>
+            <h3>User Info</h3>
+        </header>
+        <!-- Display the user's phone number, username and password -->
+        <p>Phone Number: {{ user_info['phone'] }}</p>
+        <p>Username: {{ user_info['username'] }}</p>
+        <fieldset role="group" id="disabledPasswordDiv">    
+            <input type="password" disabled value="********" >
+            <button onclick="toggleChangePassword()">Change</button>
+        </fieldset>
+        <fieldset role="group" id="passwordDiv" style="display: none;">    
+            <input type="password" id="passwordInput" value="********">
+            <button onclick="cancelPassChange()" class="secondary">Cancel</button>
+            <button onclick="sendPassChange(document.getElementById('passwordInput').value)">Send</button>
+        </fieldset>
+        </fieldset>
+
+    </article>
+    {% if user_info.username=='admin' %}
     <h3>Here you can edit the amount of shifts you need covered each week</h3>
     <table>
         <tr>
@@ -25,15 +46,20 @@
             {% for day in needed_shifts %}
             <td>
                 {% for shift in needed_shifts[day] %}
-                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift.shift}}')">{{ shift.shift }}</div>
+                <div class="shift_req_container red" onclick="removeReqShift('{{day}}', '{{shift.shift}}')">{{
+                    shift.shift }}</div>
                 {% endfor %}
             </td>
             {% endfor %}
         </tr>
     </table>
     <div class="grid">
-        <div></div><div></div><div></div>
-        <button class="primary" id="shiftInput_{{day}}" onclick="document.querySelector('dialog').open = true;">New Shift</button></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <button class="primary" id="shiftInput_{{day}}" onclick="document.querySelector('dialog').open = true;">New
+            Shift</button>
+    </div>
 
     <dialog>
         <article>
@@ -52,20 +78,21 @@
 
                 <div role="group">
                     {% for day in days_of_week %}
-                    <div role="button" id="model-div-{{day}}" class="contrast outline avail-div" onclick="toggleShiftCheck(this)">
-                        <label for="modal-{{day}}">{{day.capitalize()}}</label>
+                    <div role="button" id="model-div-{{day}}" class="contrast outline avail-div"
+                        onclick="toggleShiftCheck(this)">
+                        <label for="">{{day.capitalize()}}</label>
                         <input type="checkbox" id="modal-{{day}}" name="{{day}}" value="{{day}}" style="display: none;">
                     </div>
                     {% endfor %}
                 </div>
-                  
-                  
-            <footer class="grid">
-                <button class="secondary" onclick="document.querySelector('dialog').open = false;" type="button">
-                    Cancel
-                </button>
-                <button type="submit" >Confirm</button>
-            </footer>
+
+
+                <footer class="grid">
+                    <button class="secondary" onclick="document.querySelector('dialog').open = false;" type="button">
+                        Cancel
+                    </button>
+                    <button type="submit">Confirm</button>
+                </footer>
             </form>
         </article>
     </dialog>

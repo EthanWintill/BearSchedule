@@ -33,6 +33,7 @@ function highlightOwnedShifts(){
 
                 if(shiftObj.shift.slice(-1) == 'H'){
                     shiftDiv.classList.add('host');
+                    shiftDiv.setAttribute('style', 'border: 1px solid #ffffff')
                 }
 
                 if(shiftDiv.classList.contains('isAvailable')){
@@ -40,7 +41,6 @@ function highlightOwnedShifts(){
                 }else{
                 shiftDiv.setAttribute( 'data-tooltip', 'Click to make shift available');
                 }
-                shiftDiv.setAttribute('style', 'border: 1px solid #ffffff')
             }
         }
     }

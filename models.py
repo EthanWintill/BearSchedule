@@ -14,6 +14,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     phone = db.Column(db.Integer, unique=True)
+    def as_dict(self):
+       return {'id': self.id, 'username': self.username, 'phone': self.phone}
 
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -200,3 +202,8 @@ def get_name_from_number(number: str):
 def get_number_from_name(name: str):
     record = User.query.filter_by(username = name).first()
     return None if record is None else str(record.phone)
+
+def update_password(id: int, password: str):
+    record = User.query.filter_by(id = id).first()
+    record.password_hash = generate_password_hash(password)
+    db.session.commit()

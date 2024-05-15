@@ -1,7 +1,7 @@
-from flask import Blueprint, request, redirect, render_template, url_for
+from flask import Blueprint, jsonify, request, redirect, render_template, url_for
 from flask_login import  login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, db
+from models import User, db, update_password
 
 
 
@@ -51,3 +51,12 @@ def signup():
             return redirect(url_for('schedule_view'))
 
     return render_template('signup.html')
+
+@login_required
+@auth.route('/change_password', methods=['POST'])
+def change_password():
+    data = request.get_json()
+    user_id = data['user_id']
+    new_password = data['new_password']
+    update_password(user_id, new_password)
+    return jsonify({'status': 'ok'}), 200

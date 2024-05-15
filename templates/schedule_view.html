@@ -27,11 +27,13 @@
 
     <div class="grid">
         <h3>Schedule for week of {{next_monday.strftime("%B %d, %Y") }}</h3>
+        {% if username=='admin' %}
         <div class="grid">
             <div></div>
             <div></div>
             <button onclick="textSchedule()" class="contrast">Text Schedule</button>
         </div>
+        {%endif%}
     </div>
     <div class="wrapper-nxt-prv">
         <button class="outline contrast" onclick="modifyRouteParam(-1)">
