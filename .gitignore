@@ -16,3 +16,5 @@ static/.DS_Store
 .env
 
 test.py
+
+instance/site.db
