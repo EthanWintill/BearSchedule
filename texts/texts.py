@@ -82,7 +82,7 @@ def text_schedule_route():
 
 def text_schedule(schedule):
     phone_numbers = User.query.with_entities(User.phone).all()
-    recipients = ['83299916'] #[phone[0] for phone in phone_numbers]
+    recipients = ['8329199116'] #[phone[0] for phone in phone_numbers]
     message_body = 'SCHEDULE\n'
     for day, shiftObjs in schedule.items():
         message_body += f'\n-----------{day.upper()}----------\n'
@@ -102,7 +102,7 @@ def text_schedule(schedule):
 
 @texts.route('/shift_transfer_request', methods=['POST'])
 def shift_transfer_request():
-    manager_phone_number = '832919916'#User.query.filter_by(username='admin').first().phone
+    manager_phone_number = '8329199116'#User.query.filter_by(username='admin').first().phone
     data = request.get_json()
     shift_id = data['shift_id']
     name = data['name']
