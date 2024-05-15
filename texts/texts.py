@@ -51,8 +51,12 @@ def sms():
     print(completion.choices)
 
 
-    reply = "\t\n".join([str(day)+'\n    Start: '+str(gpt_resp[day]['start'])+'\n    End: '+str(gpt_resp[day]['end']) for day in gpt_resp])
-    reply = reply.replace('\n    Start: 23:59\n    End: 00:00', ': Not available')
+    reply = ""
+    for day in gpt_resp:
+        startTime = datetime.strptime(str(gpt_resp[day]['start']), '%H:%M').strftime('%-I%p')
+        endTime = datetime.strptime(str(gpt_resp[day]['end']), '%H:%M').strftime('%-I%p')
+        reply += str(day) + '\n    Start: ' + startTime + '\n    End: ' + endTime + '\n'
+    reply = reply.replace('\n    Start: 11PM\n    End: 12AM', ': Not available')
     print(reply)
     try:
         write_availability_to_database(sender_name, gpt_resp)
@@ -70,12 +74,15 @@ def sms():
 @texts.route('/text-schedule', methods=['POST'])
 def text_schedule_route():
     schedule = get_schedule_for_week()
-    text_schedule(schedule)
-    return 'Texted schedule', 200
+    try:
+        text_schedule(schedule)
+        return 'Texted schedule', 200
+    except:
+        return 'Error texting schedule', 500
 
 def text_schedule(schedule):
     phone_numbers = User.query.with_entities(User.phone).all()
-    recipients = ['8329199116'] #[phone[0] for phone in phone_numbers]
+    recipients = ['83299916'] #[phone[0] for phone in phone_numbers]
     message_body = 'SCHEDULE\n'
     for day, shiftObjs in schedule.items():
         message_body += f'\n-----------{day.upper()}----------\n'
@@ -90,10 +97,12 @@ def text_schedule(schedule):
             print(message.sid)
         except:
             print(f'{number} is not a phone numbers')
+            raise Exception('Error sending schedule')
+            
 
 @texts.route('/shift_transfer_request', methods=['POST'])
 def shift_transfer_request():
-    manager_phone_number = '8329199116'#User.query.filter_by(username='admin').first().phone
+    manager_phone_number = '832919916'#User.query.filter_by(username='admin').first().phone
     data = request.get_json()
     shift_id = data['shift_id']
     name = data['name']
@@ -110,7 +119,6 @@ def shift_transfer_request():
 
 
 def approve_or_deny_shift_trade(message_body, manager_number):
-    
     
     try:
         shiftObjWithName = shift_trade_requests.pop()

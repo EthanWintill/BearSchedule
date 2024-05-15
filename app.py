@@ -250,7 +250,7 @@ def settings():
         shift = data['shift']
         removeScheduleShift(day, shift)
         
-    return render_template('settings.html', needed_shifts = getShifts(), username = current_user.username, days_of_week=days_of_week, cap_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+    return render_template('settings.html', needed_shifts = getShifts(), days_of_week=days_of_week, cap_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], user_info = current_user.as_dict())
 
 if __name__ == '__main__':
     app.run(debug=True)
