@@ -82,7 +82,7 @@ def text_schedule_route():
 
 def text_schedule(schedule):
     phone_numbers = User.query.with_entities(User.phone).all()
-    recipients = ['8329199116'] #[phone[0] for phone in phone_numbers]
+    recipients = [phone[0] for phone in phone_numbers]
     message_body = 'SCHEDULE\n'
     for day, shiftObjs in schedule.items():
         message_body += f'\n-----------{day.upper()}----------\n'
@@ -102,7 +102,7 @@ def text_schedule(schedule):
 
 @texts.route('/shift_transfer_request', methods=['POST'])
 def shift_transfer_request():
-    manager_phone_number = '8329199116'#User.query.filter_by(username='admin').first().phone
+    manager_phone_number = User.query.filter_by(username='admin').first().phone
     data = request.get_json()
     shift_id = data['shift_id']
     name = data['name']
@@ -139,6 +139,5 @@ def approve_or_deny_shift_trade(message_body, manager_number):
     db.session.commit()
 
     twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for {shiftObj.name}s {shiftObj.shift} shift has been approved', to=newStaffNumber )
-    #CHANGE FOR PRODUCTION
-    #twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for your {shiftObj.shift} shift has been approved', to=oldStaffNumber )
+    twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for your {shiftObj.shift} shift has been approved', to=oldStaffNumber )
     return 'Shift transfer request resolved', 200

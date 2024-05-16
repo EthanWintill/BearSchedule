@@ -64,6 +64,8 @@ function sendShiftClaimRequest(name, shiftObj){
             console.error('Error:', error);
             console.log(response.json());
             alert('Beep Boop! Error claiming shift. Try again.');
+        }).then(() => {
+            alert('Shift claim request sent!');
         });
 
 }
