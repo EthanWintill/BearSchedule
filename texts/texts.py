@@ -127,7 +127,8 @@ def approve_or_deny_shift_trade(message_body, manager_number):
         twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body='No shift transfer requests to resolve', to=manager_number )
         return 'No shift transfer requests to resolve', 200
     
-    oldStaffNumber = get_number_from_name(shiftObj.name)
+    oldStaffname = shiftObj.name
+    oldStaffNumber = get_number_from_name(oldStaffname)
     newStaffNumber = get_number_from_name(shiftObjWithName['name'])
 
     if (message_body.upper()) == 'N':
@@ -138,6 +139,6 @@ def approve_or_deny_shift_trade(message_body, manager_number):
     shiftObj.isAvailable = False
     db.session.commit()
 
-    twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for {shiftObj.name}s {shiftObj.shift} shift has been approved', to=newStaffNumber )
+    twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for {oldStaffname}s {shiftObj.shift} shift has been approved', to=newStaffNumber )
     twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for your {shiftObj.shift} shift has been approved', to=oldStaffNumber )
     return 'Shift transfer request resolved', 200
