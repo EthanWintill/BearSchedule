@@ -207,3 +207,15 @@ def update_password(id: int, password: str):
     record = User.query.filter_by(id = id).first()
     record.password_hash = generate_password_hash(password)
     db.session.commit()
+
+def delete_user(id: int):
+    user = User.query.filter_by(id = id).first()
+
+    #delete availabilities for this week
+    next_monday = get_next_monday()
+    prevAvail = Availability.query.filter_by(name=user.username, week_of=next_monday).first()
+    if prevAvail:
+        db.session.delete(prevAvail)
+        
+    db.session.delete(user)
+    db.session.commit()

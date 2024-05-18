@@ -60,7 +60,16 @@
         <button class="primary" id="shiftInput_{{day}}" onclick="document.querySelector('dialog').open = true;">New
             Shift</button>
     </div>
-
+    <h3>... Or delete an account</h2>
+    <fieldset role="group">
+        <select name="delete-name">
+            {% for name in names %}
+            <option value="{{name}}">{{name['username']}}</option>
+            {% endfor %}
+        </select>
+        <button onclick="confirmAccountDeletion(document.querySelector('select').value, true)" class="outline contrast red">Delete
+            account</button>
+    </fieldset>
     <dialog>
         <article>
             <h2>Add New Required Shift</h2>
@@ -96,7 +105,8 @@
             </form>
         </article>
     </dialog>
-
+    {% else %}
+    <button onclick="confirmAccountDeletion(user_info, false)" class="outline contrast red">Delete account</button>
     {%endif%}
 </main>
 
