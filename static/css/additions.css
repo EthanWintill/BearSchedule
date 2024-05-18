@@ -107,6 +107,10 @@ td, th {
     outline: 2px solid #fbfbfb;
 }
 
+button.red{
+    border-color: #72170F;
+}
+
 .scheduled-shift.red:hover {
     margin-bottom: 7px;
 }
