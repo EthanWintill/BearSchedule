@@ -73,7 +73,7 @@ def sms():
 
 @texts.route('/text-schedule', methods=['POST'])
 def text_schedule_route():
-    schedule = get_schedule_for_week()
+    schedule = get_schedule_for_week(1)
     try:
         text_schedule(schedule)
         return 'Texted schedule', 200
