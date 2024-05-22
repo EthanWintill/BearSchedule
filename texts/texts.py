@@ -55,14 +55,14 @@ def sms():
     for day in gpt_resp:
         startTime = datetime.strptime(str(gpt_resp[day]['start']), '%H:%M').strftime('%-I%p')
         endTime = datetime.strptime(str(gpt_resp[day]['end']), '%H:%M').strftime('%-I%p')
-        reply += str(day) + '\n    Start: ' + startTime + '\n    End: ' + endTime + '\n'
-    reply = reply.replace('\n    Start: 11PM\n    End: 12AM', ': Not available')
+        reply += str(day) + '\r\n    Start: ' + startTime + '\r\n    End: ' + endTime + '\r\n'
+    reply = reply.replace('\r\n    Start: 11PM\r\n    End: 12AM', ': Not available')
     print(reply)
     try:
         write_availability_to_database(sender_name, gpt_resp)
-        reply = f'\n\nUpdated your availability to:\n {reply}' #f"{gpt_resp['coax']}" if 'coax' in gpt_resp else 'Availability recieved!'
+        reply = f'\r\n\r\nUpdated your availability to:\r\n {reply}' #f"{gpt_resp['coax']}" if 'coax' in gpt_resp else 'Availability recieved!'
     except:
-        reply = f'Sorry, I had an error, please try rewording you availability\n\nREFERENCE\n {reply}'
+        reply = f'Sorry, I had an error, please try rewording you availability\r\n\r\nREFERENCE\r\n {reply}'
         print(reply)
         
     resp = MessagingResponse()  
@@ -71,9 +71,9 @@ def sms():
 
     return str(resp)
 
-@texts.route('/text-schedule', methods=['POST'])
-def text_schedule_route():
-    schedule = get_schedule_for_week()
+@texts.route('/text-schedule/<week_offset>', methods=['POST'])
+def text_schedule_route(week_offset):
+    schedule = get_schedule_for_week(int(week_offset))
     try:
         text_schedule(schedule)
         return 'Texted schedule', 200
@@ -81,23 +81,30 @@ def text_schedule_route():
         return 'Error texting schedule', 500
 
 def text_schedule(schedule):
-    phone_numbers = User.query.with_entities(User.phone).all()
-    recipients = [phone[0] for phone in phone_numbers]
-    message_body = 'SCHEDULE\n'
-    for day, shiftObjs in schedule.items():
-        message_body += f'\n-----------{day.upper()}----------\n'
-        for shiftObj in shiftObjs:
-            message_body+= f'{shiftObj["shift"]}\t{shiftObj["name"]}\n'
+    recipients = User.query.filter(User.username != 'admin').with_entities(User.phone, User.username).all()
+    #recipients = [('8329199116', 'Ethan')] #for testing
+    message_body = 'SCHEDULE\r\n'
+    for recipient in recipients:
+        for day, shiftObjs in schedule.items():
+            if recipient[1] not in [shiftObj['name'] for shiftObj in shiftObjs]:
+                continue
 
-    message_body += f'-------------------------------'
-        
-    for number in recipients:
+            recipient_shifts_start = min([shiftObj['startTime'] for shiftObj in shiftObjs if shiftObj['name'] == recipient[1]])
+            recipient_shifts_end = max([shiftObj['endTime'] for shiftObj in shiftObjs if shiftObj['name'] == recipient[1]])
+            message_body += f'\r\n-----------{day.upper()}----------\r\n'
+            for shiftObj in shiftObjs:
+                if shiftObj['startTime'] < recipient_shifts_end and shiftObj['endTime'] > recipient_shifts_start:
+                    message_body+= f'{shiftObj["shift"]}{(7-len(shiftObj["shift"]))*2*" "}{shiftObj["name"]}\r\n'
+
+        #send message
         try:
-            message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=number )
+            message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=recipient[0] )
             print(message.sid)
         except:
-            print(f'{number} is not a phone numbers')
+            print(f'{recipient[0]} is not a phone numbers')
             raise Exception('Error sending schedule')
+        
+        
             
 
 @texts.route('/shift_transfer_request', methods=['POST'])

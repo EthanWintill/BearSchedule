@@ -91,7 +91,9 @@ function getScheduleEntry(name, day, shift) {
 }
 
 function textSchedule(){
-    fetch('/text-schedule',{
+    let currentParam = parseInt(window.location.pathname.split('/').pop());
+    let week_offset = isNaN(currentParam) ? 0 : currentParam;
+    fetch(`/text-schedule/${week_offset}`,{
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

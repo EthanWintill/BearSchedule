@@ -166,7 +166,7 @@ def get_schedule_for_week(offset=0):
     for entry in next_week_schedule:
         day = datetime.strptime(entry.date, '%Y-%m-%d').strftime('%a-%d')
         formatted_schedule.setdefault(day,[]).append(entry.as_dict())
-        formatted_schedule[day].sort(key=lambda x: x['shift'])
+        formatted_schedule[day].sort(key=lambda x: x['endTime'])
     return formatted_schedule
 
 
