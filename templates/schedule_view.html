@@ -52,7 +52,7 @@
                             <td id="{{day[0:3].lower()}}_AM">
 
                                 {% for shift in shifts %}
-                                {% if shift['shift'][1] != '5' %}
+                                {% if shift['startTime'] < '16:00' %}
                                 {% if shift['isAvailable'] %}
                                 <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}} isAvailable"
                                     id="{{day}}_{{shift.shift}}_{{shift.name}}"
@@ -75,7 +75,7 @@
                             {% for day, shifts in schedule.items() %}
                             <td id="{{day[0:3].lower()}}_PM">
                                 {% for shift in shifts %}
-                                {% if shift['shift'][1] == '5' %}
+                                {% if shift['startTime'] >= '16:00' %}
                                 {% if shift['isAvailable'] %}
                                 <div class="scheduled-shift {{day}}_{{shift.shift}}_{{shift.name}} isAvailable"
                                     id="{{day}}_{{shift.shift}}_{{shift.name}}"
