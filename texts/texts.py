@@ -74,7 +74,7 @@ def sms():
 
 def text_schedule(schedule):
     recipients = User.query.filter(User.username != 'admin').with_entities(User.phone, User.username).all()
-    recipients = [('8329199116', 'Ethan')] #for testing
+    #recipients = [('8329199116', 'Ethan')] #for testing
     message_body = 'SCHEDULE\r\n'
     for recipient in recipients:
         for day, shiftObjs in schedule.items():
@@ -152,8 +152,8 @@ def text_schedule_route(week_offset):
         return 'Error texting schedule', 500
     
 def alertStaffAvailShift(shiftObj: dict):
-    name = shiftObj['name'] #CHANGE TO FILTER OUT JAY FOR PRODUCITON
-    other_staff = User.query.filter(User.username != name and User.username == 'Ethan').with_entities(User.phone, User.username).all()
+    name = shiftObj['name']
+    other_staff = User.query.filter(User.username != name and User.username != 'admin').with_entities(User.phone, User.username).all()
     message_body = f'{name} wants to give away their {shiftObj["shift"]} shift on {datetime.strptime(shiftObj["date"], "%Y-%m-%d").strftime("%A, %B %-d")} \r\n \r\nGo to https://bearschedule.com/schedule_view to take it first it!'
     for staff in other_staff:
         try:
@@ -167,7 +167,7 @@ def alertStaffAvailShift(shiftObj: dict):
 @texts.route('/availability_alert', methods=['POST'])
 def availability_alert():
     lazy_staff = get_staff_without_availability()
-    lazy_staff = [{'phone': '8329199116'}] #for testing
+    # lazy_staff = [{'phone': '8329199116'}] #for testing
     for staff in lazy_staff:
         try:
             message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Last chance to put in your availability!! If its not entered by saturday morning, I will have to mark you down as open all week!\r\n\r\nYou can reply to this message with next weeks availability or go to https://bearschedule.com/availability_form', to=staff['phone'] )
