@@ -45,7 +45,7 @@ function toggleCheckbox(element) {
     const [name, day, shiftName] = element.className.split(' ')[0].split('_');
     let shiftObj = getShiftObjFromShiftName(day, shiftName, name);
     if (element.classList.contains('checked')) {
-        console.log('Checkbox ' + element.className + ' is checked!');
+        // console.log('Checkbox ' + element.className + ' is checked!');
         for (const person of names) {
             if (person == name) { continue; }
             index = shifts[day][person].map(shift => shift.shift).indexOf(shiftName)
@@ -55,7 +55,7 @@ function toggleCheckbox(element) {
             }
         }
     } else {
-        console.log('Checkbox is unchecked!');
+        // console.log('Checkbox is unchecked!');
         for (const person of names) {
             if (person == name) { continue; }
             if (checkAvail(shiftObj, person, day)) {
@@ -106,7 +106,7 @@ function getCurrentSchedule() {
             schedule[day][name] = [];
             for (let shiftObj of shifts[day][name]) {
                 if (document.getElementById(name + '_' + day + '_' + shiftObj.shift + '_hiddencheck').checked) {
-                    schedule[day][name].push(shiftObj.shift);
+                    schedule[day][name].push(shiftObj);
                 }
             }
         }

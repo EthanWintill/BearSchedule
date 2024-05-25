@@ -30,7 +30,7 @@
         {% if username=='admin' %}
         <div class="grid">
             <div></div>
-            <div></div>
+            <button onclick="printSchedule()" class="contrast"><i class="fa-solid fa-print"></i></button>
             <button onclick="textSchedule()" class="contrast">Text Schedule</button>
         </div>
         {%endif%}
@@ -38,7 +38,7 @@
     <div class="wrapper-nxt-prv">
         <button class="outline contrast" onclick="modifyRouteParam(-1)">
             < </button>
-                <table style="margin-bottom: 0;" class="schedule-view">
+                <table style="margin-bottom: 0;" class="schedule-view" id="schedule-table">
                     <tbody>
                         <tr>
                             <th>Shift</th>

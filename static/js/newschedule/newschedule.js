@@ -10,6 +10,9 @@ console.log(shifts);
 document.addEventListener('DOMContentLoaded', function () {
     populateTable(shifts);
     duplicateFilter();
+    if(localStorage[getWeekInt()]){
+        fillSchedule(JSON.parse(localStorage[getWeekInt()]));
+    }
 
 });
 
@@ -26,7 +29,17 @@ function populateTable(shiftObjs) {
 
 
 function cancelForm() {
-    window.location.href = "/newschedule"
+    emptySchedule = {
+        "fri": {},
+        "mon": {},
+        "sat": {},
+        "sun": {},
+        "thu": {},
+        "tue": {},
+        "wed": {}
+    }
+    saveSchedule(emptySchedule);
+    window.location.reload();
 }
 
 function getPossibleShifts(name, day) {
@@ -64,7 +77,6 @@ function checkAvail(shift, name, day) {
 function fillSchedule(schedule) {
     for (let day in schedule) {
         for (let name in schedule[day]) {
-            console.log(schedule[day][name])
             for (let shift of schedule[day][name]) {
                 checkShift(day, name, shift.shift);
             }
@@ -77,6 +89,12 @@ function autoCompleteSchedule() {
     let currentlyNeededShifts = getCurrentlyNeededShifts();
     let currentAvails = getUpdatedAvails(avails);
     computeSchedule(currentlyNeededShifts, currentAvails)
+}
+
+function saveSchedule(schedule = getCurrentSchedule()) {
+    let currentWeek = getWeekInt();
+    localStorage[currentWeek] = JSON.stringify(schedule);
+    alert('Schedule saved!');
 }
 
 

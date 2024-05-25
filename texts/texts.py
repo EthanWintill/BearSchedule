@@ -5,7 +5,7 @@ from openai import OpenAI
 from twilio import rest
 import os
 import json
-from models import Schedule, get_name_from_number, get_number_from_name, get_schedule_for_week, write_availability_to_database, db
+from models import Schedule, get_name_from_number, get_number_from_name, get_schedule_for_week, get_staff_without_availability, write_availability_to_database, db
 from dotenv import load_dotenv
 from models import User
 
@@ -71,31 +71,22 @@ def sms():
 
     return str(resp)
 
-@texts.route('/text-schedule/<week_offset>', methods=['POST'])
-def text_schedule_route(week_offset):
-    schedule = get_schedule_for_week(int(week_offset))
-    try:
-        text_schedule(schedule)
-        return 'Texted schedule', 200
-    except:
-        return 'Error texting schedule', 500
 
 def text_schedule(schedule):
     recipients = User.query.filter(User.username != 'admin').with_entities(User.phone, User.username).all()
-    #recipients = [('8329199116', 'Ethan')] #for testing
+    recipients = [('8329199116', 'Ethan')] #for testing
     message_body = 'SCHEDULE\r\n'
     for recipient in recipients:
         for day, shiftObjs in schedule.items():
             if recipient[1] not in [shiftObj['name'] for shiftObj in shiftObjs]:
                 continue
 
-            recipient_shifts_start = min([shiftObj['startTime'] for shiftObj in shiftObjs if shiftObj['name'] == recipient[1]])
-            recipient_shifts_end = max([shiftObj['endTime'] for shiftObj in shiftObjs if shiftObj['name'] == recipient[1]])
+            recipient_shifts = [shiftObj for shiftObj in shiftObjs if shiftObj['name'] == recipient[1]]
             message_body += f'\r\n-----------{day.upper()}----------\r\n'
-            for shiftObj in shiftObjs:
-                if shiftObj['startTime'] < recipient_shifts_end and shiftObj['endTime'] > recipient_shifts_start:
-                    message_body+= f'{shiftObj["shift"]}{(7-len(shiftObj["shift"]))*2*" "}{shiftObj["name"]}\r\n'
+            for shiftObj in recipient_shifts:
+                message_body+= f'{shiftObj["shift"]}{(7-len(shiftObj["shift"]))*2*" "}{shiftObj["name"]}\r\n'
 
+        message_body += 'Go to https://bearschedule.com/schedule_view to view the full schedule'
         #send message
         try:
             message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=recipient[0] )
@@ -149,3 +140,40 @@ def approve_or_deny_shift_trade(message_body, manager_number):
     twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for {oldStaffname}s {shiftObj.shift} shift has been approved', to=newStaffNumber )
     twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for your {shiftObj.shift} shift has been approved', to=oldStaffNumber )
     return 'Shift transfer request resolved', 200
+
+
+@texts.route('/text-schedule/<week_offset>', methods=['POST'])
+def text_schedule_route(week_offset):
+    schedule = get_schedule_for_week(int(week_offset))
+    try:
+        text_schedule(schedule)
+        return 'Texted schedule', 200
+    except:
+        return 'Error texting schedule', 500
+    
+def alertStaffAvailShift(shiftObj: dict):
+    name = shiftObj['name'] #CHANGE TO FILTER OUT JAY FOR PRODUCITON
+    other_staff = User.query.filter(User.username != name and User.username == 'Ethan').with_entities(User.phone, User.username).all()
+    message_body = f'{name} wants to give away their {shiftObj["shift"]} shift on {datetime.strptime(shiftObj["date"], "%Y-%m-%d").strftime("%A, %B %-d")} \r\n \r\nGo to https://bearschedule.com/schedule_view to take it first it!'
+    for staff in other_staff:
+        try:
+            message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=staff[0] )
+            print(message.sid)
+        except:
+            print(f'{staff[0]} is not a phone numbers')
+            raise Exception('Error sending schedule')
+        
+
+@texts.route('/availability_alert', methods=['POST'])
+def availability_alert():
+    lazy_staff = get_staff_without_availability()
+    lazy_staff = [{'phone': '8329199116'}] #for testing
+    for staff in lazy_staff:
+        try:
+            message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Last chance to put in your availability!! If its not entered by saturday morning, I will have to mark you down as open all week!\r\n\r\nYou can reply to this message with next weeks availability or go to https://bearschedule.com/availability_form', to=staff['phone'] )
+            print(message.sid)
+        except:
+            print(f'{staff["phone"]} is not a phone numbers')
+            raise Exception('Error sending schedule')
+        
+    return 'Availability alert sent', 200

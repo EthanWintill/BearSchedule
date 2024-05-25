@@ -123,3 +123,12 @@ button.red{
     background-color: #66feb7;
     outline: 2px solid #fbfbfb;
 }
+
+.flashes li{
+    list-style: none;
+}
+
+.flashes {
+    text-align: center;
+    background-color: rgb(115, 116, 126);
+}

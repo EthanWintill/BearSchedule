@@ -19,8 +19,10 @@
         <h1>Publish Schedule For Week of {{week_of.strftime("%B %d")}}</h1>
         <button class="outline contrast" onclick="modifyRouteParam(1)"> > </button>
     </div>
-
-    
+    <div class="grid">
+        <div></div><div></div><div></div><div></div>
+        <button class="contrast" onclick="saveSchedule()">Save</button>
+    </div>
     <form method="POST">
         <table class="newschedule-table">
             <tr>
@@ -47,7 +49,7 @@
             <div></div>
             <div></div>
             <button type="button" onclick="cancelForm()" class="secondary">Clear</button>
-            <button type="submit" onclick="window.location.href='/schedule_view'">Send Schedule</button>
+            <button type="submit" onclick="window.location.href='/schedule_view'">Submit</button>
         </div>
         </div>
         <div class="grid">
