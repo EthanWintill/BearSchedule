@@ -75,7 +75,7 @@ def submit_availability():
                 startingAvail = '09:00'
                 endingAvail = '23:59' if isAvailPm else '17:30'
             elif isAvailPm:
-                startingAvail = '16:30'
+                startingAvail = '16:00'
                 endingAvail = '23:59'
 
             avail[day]['start'] = startingAvail
