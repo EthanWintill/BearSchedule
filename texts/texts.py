@@ -75,8 +75,8 @@ def sms():
 def text_schedule(schedule):
     recipients = User.query.filter(User.username != 'admin').with_entities(User.phone, User.username).all()
     #recipients = [('8329199116', 'Ethan')] #for testing
-    message_body = 'SCHEDULE\r\n'
     for recipient in recipients:
+        message_body = 'YOUR SCHEDULE\r\n'
         for day, shiftObjs in schedule.items():
             if recipient[1] not in [shiftObj['name'] for shiftObj in shiftObjs]:
                 continue
@@ -86,11 +86,12 @@ def text_schedule(schedule):
             for shiftObj in recipient_shifts:
                 message_body+= f'{shiftObj["shift"]}{(7-len(shiftObj["shift"]))*2*" "}{shiftObj["name"]}\r\n'
 
-        message_body += 'Go to https://bearschedule.com/schedule_view to view the full schedule'
+        message_body += '\r\nGo to https://bearschedule.com/schedule_view to view the full schedule'
         #send message
         try:
             message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=recipient[0] )
             print(message.sid)
+            # print(f'{recipient[0]}: {message_body}')
         except:
             print(f'{recipient[0]} is not a phone numbers')
             raise Exception('Error sending schedule')
