@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request, redirect, render_template, url_for
+from flask import Blueprint, flash, jsonify, request, redirect, render_template, url_for
 from flask_login import  login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, db, update_password, delete_user
+from models import User, db, update_password, delete_user, update_username
 
 
 
@@ -23,6 +23,7 @@ def login():
         
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
+            flash('You were successfully logged in')
             return redirect(url_for('schedule_view'))
         
     return render_template('login.html')
@@ -41,6 +42,11 @@ def signup():
         username = request.form['username']
         password = request.form['password']
         phone = request.form['phone']
+
+        #data validation for phone number
+        if len(phone) != 10 or not phone.isdigit():
+            flash('Invalid phone number')
+            return redirect(url_for('auth.signup'))
 
         user = User(username=username, password_hash=generate_password_hash(password), phone=phone)
         db.session.add(user)
@@ -62,13 +68,22 @@ def delete_account():
     delete_user(user_id)
     return jsonify({'status': 'ok'}), 200
 
-@login_required
 @auth.route('/change_password', methods=['POST'])
+@login_required
 def change_password():
     data = request.get_json()
     user_id = data['user_id']
     new_password = data['new_password']
     update_password(user_id, new_password)
+    return jsonify({'status': 'ok'}), 200
+
+@auth.route('/change_username', methods=['POST'])
+@login_required
+def change_username():
+    data = request.get_json()
+    user_id = data['user_id']
+    new_username = data['new_username']
+    update_username(user_id, new_username)
     return jsonify({'status': 'ok'}), 200
 
 

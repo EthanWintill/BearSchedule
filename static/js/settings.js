@@ -31,6 +31,17 @@ function toggleChangePassword() {
     let passChange = document.getElementById('passwordDiv');
     passChange.style.removeProperty('display');
 }
+
+function toggleChangeUsername() {
+    let usernameDisplay = document.getElementById('usernameDiv');
+    if(usernameDisplay.style.display === 'none'){
+        usernameDisplay.style.removeProperty('display');
+    }else{
+        usernameDisplay.style.display = 'none';
+    }
+}
+
+
 function cancelPassChange() {
     let passDisplay = document.getElementById('disabledPasswordDiv');
     let passChange = document.getElementById('passwordDiv');
@@ -86,6 +97,24 @@ function sendPassChange(newPassword) {
     }).then(() => {
         cancelPassChange();
         alert('Password successfully changed');
+    }).catch((error) => {
+        console.log(error);
+    });
+}
+
+function sendUsernameChange(newUsername) {
+    fetch('/change_username', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "new_username": newUsername,
+            'user_id': user_info['id']
+        })
+    }).then(() => {
+        alert('Username successfully changed');
+        window.location.href = '/settings';
     }).catch((error) => {
         console.log(error);
     });

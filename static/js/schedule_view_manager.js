@@ -39,3 +39,15 @@ function existingShiftClicked(name, day, shift) {
     removeShift(name, day, shift);
     fillGaps();
 }
+
+function printSchedule(){
+    let printFrame = document.createElement('iframe');
+    printFrame.style.display = 'none';
+    
+    let schedule = document.getElementById('schedule-table');
+    printFrame.srcdoc = '<html><head><title>Print</title>     <link rel="stylesheet" href="/static/css2/pico.min.css">   <link rel="stylesheet" href="/static/css/additions.css">    </head><body class="printScreen">' + schedule.outerHTML + '</body></html>';
+    document.body.appendChild(printFrame);
+
+    printFrame.contentWindow.focus();
+    printFrame.contentWindow.print();
+}

@@ -11,6 +11,16 @@ function modifyRouteParam(amount) {
     }
 }
 
+function getOffset(){
+    const offset = parseInt(window.location.pathname.split('/').pop());
+    return isNaN(offset) ? 0 : offset;
+}
+
+function getWeekInt(){
+    let offset = getOffset();
+    return Math.floor((new Date).getTime() / (1000 * 60 * 60 * 24))-new Date().getDay()-1+offset*7;
+
+}
 
 function insertChildAlphabetically(parentElement, childElement) {
     const parentDiv = parentElement;

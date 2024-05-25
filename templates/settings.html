@@ -17,17 +17,24 @@
         </header>
         <!-- Display the user's phone number, username and password -->
         <p>Phone Number: {{ user_info['phone'] }}</p>
-        <p>Username: {{ user_info['username'] }}</p>
+        <div onclick="toggleChangeUsername()" data-tooltip="Click to edit">
+            <p>Username: {{ user_info['username'] }}</p>
+        </div>
+        <fieldset role="group" id="usernameDiv" style="display: none;">
+            <input type="password" name="usernameInput" id="usernameInput" >
+            <button onclick="sendUsernameChange(document.getElementById('usernameInput').value)">Submit</button>
+        </fieldset>
+        <p>Password</p>
         <fieldset role="group" id="disabledPasswordDiv">    
             <input type="password" disabled value="********" >
-            <button onclick="toggleChangePassword()">Change</button>
+            <button onclick="toggleChangePassword()">Edit</button>
         </fieldset>
         <fieldset role="group" id="passwordDiv" style="display: none;">    
             <input type="password" id="passwordInput" value="********">
             <button onclick="cancelPassChange()" class="secondary">Cancel</button>
-            <button onclick="sendPassChange(document.getElementById('passwordInput').value)">Send</button>
+            <button onclick="sendPassChange(document.getElementById('passwordInput').value)">Submit</button>
         </fieldset>
-        </fieldset>
+    
 
     </article>
     {% if user_info.username=='admin' %}

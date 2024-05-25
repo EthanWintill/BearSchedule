@@ -166,7 +166,7 @@ def get_schedule_for_week(offset=0):
     for entry in next_week_schedule:
         day = datetime.strptime(entry.date, '%Y-%m-%d').strftime('%a-%d')
         formatted_schedule.setdefault(day,[]).append(entry.as_dict())
-        formatted_schedule[day].sort(key=lambda x: x['shift'])
+        formatted_schedule[day].sort(key=lambda x: x['endTime'])
     return formatted_schedule
 
 
@@ -182,8 +182,8 @@ def addShift(name: str, day: str, shift_id: int, week_offset=0):
     db.session.add(entry)
     db.session.commit()
 
-def toggleShiftAvailabilityDB(name: str, day: str, shift: str, week_offset=0):
-    entry = getScheduleEntry(name, day, shift, week_offset)
+def toggleShiftAvailabilityDB(shiftObj: dict):
+    entry = Schedule.query.filter_by(id=shiftObj['id']).first()
     entry.isAvailable = not entry.isAvailable
     db.session.commit()
 
@@ -208,6 +208,11 @@ def update_password(id: int, password: str):
     record.password_hash = generate_password_hash(password)
     db.session.commit()
 
+def update_username(id: int, username: str):
+    record = User.query.filter_by(id = id).first()
+    record.username = username
+    db.session.commit()
+
 def delete_user(id: int):
     user = User.query.filter_by(id = id).first()
 
@@ -219,3 +224,16 @@ def delete_user(id: int):
         
     db.session.delete(user)
     db.session.commit()
+
+def get_staff_without_availability():
+    users = User.query.filter(User.username != 'admin').all()
+    next_monday = get_next_monday()
+    result = []
+    for user in users:
+        prevAvail = Availability.query.filter_by(name=user.username, week_of=next_monday).first()
+        if prevAvail:
+            continue
+        result.append(user.as_dict())
+
+    return result
+

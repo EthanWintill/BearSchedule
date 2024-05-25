@@ -8,7 +8,7 @@ function existingShiftClicked(name, day, shift) {
     let shiftDiv = document.getElementById(day + '_' + shift + '_' + name);
     let shiftObj = getScheduleEntry(name, day, shift);
     if(name == username){
-        toggleShiftAvailabilityDB(day, shift, name)
+        toggleShiftAvailabilityDB(shiftObj);
     }else if(shiftDiv.classList.contains('isAvailable')){
         sendShiftClaimRequest(username, shiftObj);
     }else{
@@ -71,8 +71,7 @@ function sendShiftClaimRequest(name, shiftObj){
 }
 
 
-function toggleShiftAvailabilityDB(day, shift, name){
-    let week_offset = parseInt(window.location.href.split('/').pop()) // Nan if no route param
+function toggleShiftAvailabilityDB(shiftObj){
     fetch('/toggleShiftAvailability',
         {
             method: 'POST',
@@ -80,10 +79,7 @@ function toggleShiftAvailabilityDB(day, shift, name){
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "name": name,
-                "day": day.slice(0, 3).toLowerCase(),
-                "shift": shift,
-                "offset": week_offset? week_offset : 0
+                "shiftObj": shiftObj
             }),
         }).then(response => {
             console.log(response.json());

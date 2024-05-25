@@ -3,7 +3,7 @@ from models import User, db, Schedule, getShifts ,get_schedule_for_week, write_a
 from flask_login import LoginManager, login_required, current_user
 from datetime import datetime, timedelta
 from auth.auth import auth, init_auth_routes
-from texts.texts import texts, text_schedule
+from texts.texts import texts, alertStaffAvailShift
 
 
 app = Flask(__name__)
@@ -14,6 +14,7 @@ app.register_blueprint(texts)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
 init_auth_routes(login_manager)
 
 
@@ -39,14 +40,14 @@ def test():
 def index():
     return redirect(url_for('auth.login'))
 
-@login_required
 @app.route('/availability_form', methods=['GET'])
+@login_required
 def availability_form():
     users = [user.username for user in User.query.all()]
     return render_template('availability_form.html', username = current_user.username, names = users, days_of_week=['mon','tue','wed','thu','fri','sat','sun'])
 
-@login_required
 @app.route('/submit_availability', methods=['POST'])
+@login_required
 def submit_availability(): 
     if request.method == 'POST':
 
@@ -85,8 +86,8 @@ def submit_availability():
 
     return redirect(url_for('schedule_view')) 
 
-@login_required
 @app.route('/removeShift', methods=['DELETE'])
+@login_required
 def removeShiftRoute():
     data = request.get_json()
     day, shift, name, offset = data['day'][:3], data['shift'], data['name'], data['offset']
@@ -97,17 +98,18 @@ def removeShiftRoute():
         return 'Error! Probably cant find shift', 500
     return '', 204
 
-@login_required
 @app.route('/addShift', methods=['POST'])
+@login_required
 def addShiftRoute():
     data = request.get_json()
     day, name, offset, shift_id = data['day'], data['name'], data['offset'], data['shift_id']
     addShift(name, day, shift_id, offset)
     return 'Success', 200
 
-@login_required
+
 @app.route('/newschedule/<week_offset>', methods=['GET','POST'])
 @app.route('/newschedule', methods=['GET','POST'])
+@login_required
 def new_schedule(week_offset=0):
     week_offset = int(week_offset)+1 #hack to get default to be next week while using utils.modifyRouteParam()
     shifts = getShifts()
@@ -141,9 +143,9 @@ def new_schedule(week_offset=0):
 
 
 # Route for the schedule_view page
-@login_required
 @app.route('/schedule_view/<week_offset>')
 @app.route('/schedule_view')
+@login_required
 def schedule_view(week_offset=0):
     username = current_user.username
     schedule = get_schedule_for_week(int(week_offset))
@@ -160,9 +162,10 @@ def schedule_view(week_offset=0):
 
 @app.route('/toggleShiftAvailability', methods=['POST'])
 def toggleShiftAvailability():
-    data = request.get_json()
-    day, shift, name, offset = data['day'], data['shift'], data['name'], data['offset']
-    toggleShiftAvailabilityDB(name, day, shift, offset)
+    shiftObj = request.get_json()['shiftObj']
+    toggleShiftAvailabilityDB(shiftObj)
+    if not shiftObj['isAvailable']:
+        alertStaffAvailShift(shiftObj)
     return '', 204
 
 @app.route('/optimize-schedule', methods=['POST'])
@@ -228,8 +231,8 @@ def checkAvail(shift, name, day, avails):
     
     return shift['startTime'] >= startingAvail and shift['endTime'] <= endingAvail
 
-@login_required
 @app.route('/settings', methods=['GET' , 'POST', 'DELETE'])
+@login_required
 def settings():
     days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
     names = [user.as_dict() for user in User.query.all()]

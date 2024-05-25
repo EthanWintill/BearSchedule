@@ -1,13 +1,25 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bear Schedule</title>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
     <script src="https://kit.fontawesome.com/d3641edd19.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css2/pico.min.css') }}">
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}"> -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/additions.css') }}">
 </head>
+
 <body>
 
     {% block navbar %}
@@ -18,7 +30,8 @@
             </strong>
         </ul>
         <ul>
-            <i class="fa-solid fa-gear fa-xl" style="color: #ffffff; padding-right: 15px; cursor: pointer;" onclick="window.location.href='/settings'"></i>              
+            <i class="fa-solid fa-gear fa-xl" style="color: #ffffff; padding-right: 15px; cursor: pointer;"
+                onclick="window.location.href='/settings'"></i>
             <li><a href="{{ url_for('auth.logout') }}" role="button" class="contrast">Logout</a></li>
         </ul>
     </nav>
@@ -28,4 +41,5 @@
 
     {%endblock%}
 </body>
+
 </html>
