@@ -177,3 +177,4 @@ def availability_alert():
             raise Exception('Error sending schedule')
         
     return 'Availability alert sent', 200
+
