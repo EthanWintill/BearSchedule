@@ -107,7 +107,7 @@ def shift_transfer_request():
     name = data['name']
     shiftObj = Schedule.query.filter_by(id=shift_id).first()
     shift_trade_requests.append({'shiftObj':shiftObj, 'name':name})
-    message_body = f'{name} would like to take {shiftObj.name}\'s {shiftObj.shift} shift on {datetime.strptime(shiftObj.date, "%Y-%m-%d").strftime("%A, %B %-d")} '
+    message_body = f'{name} would like to take {shiftObj.name}\'s {shiftObj.shift} shift on {datetime.strptime(shiftObj.date, "%Y-%m-%d").strftime("%A, %B %-d")} \r\n\r\n Reply with "Y" to approve or "N" to deny.'
     try:
         message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message_body, to=manager_phone_number )
         print(message.sid)
