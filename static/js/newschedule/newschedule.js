@@ -78,7 +78,11 @@ function fillSchedule(schedule) {
     for (let day in schedule) {
         for (let name in schedule[day]) {
             for (let shift of schedule[day][name]) {
-                checkShift(day, name, shift.shift);
+                try {
+                    checkShift(day, name, shift.shift);
+                } catch (error) {
+                    console.error('Error checking shift:', error);
+                }
             }
         }
     }
