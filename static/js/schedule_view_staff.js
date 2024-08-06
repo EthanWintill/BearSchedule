@@ -8,9 +8,14 @@ function existingShiftClicked(name, day, shift) {
     let shiftDiv = document.getElementById(day + '_' + shift + '_' + name);
     let shiftObj = getScheduleEntry(name, day, shift);
     if(name == username){
-        toggleShiftAvailabilityDB(shiftObj);
+        let confirmDialog = !shiftDiv.classList.contains('isAvailable') ? 'Are you sure you would like to make this shift available to others?' : 'Are you sure you would like to make this shift as unavailable?';
+        if(confirm(confirmDialog)){
+            toggleShiftAvailabilityDB(shiftObj);
+        }
     }else if(shiftDiv.classList.contains('isAvailable')){
-        sendShiftClaimRequest(username, shiftObj);
+        if(confirm('Are you sure you would like to claim this shift?')){
+            sendShiftClaimRequest(username, shiftObj);
+        }
     }else{
         alert("Nice try, bucko! You can only remove your own shifts.");
     }

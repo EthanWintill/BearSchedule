@@ -104,7 +104,8 @@ function getCurrentSchedule() {
         schedule[day] = {};
         for (let name of names) {
             schedule[day][name] = [];
-            for (let shiftObj of shifts[day][name]) {
+            noDupShifts = shifts[day][name].filter((v,i,a) => a.findIndex(t => t.shift === v.shift) === i);
+            for (let shiftObj of noDupShifts) {
                 if (document.getElementById(name + '_' + day + '_' + shiftObj.shift + '_hiddencheck').checked) {
                     schedule[day][name].push(shiftObj);
                 }
