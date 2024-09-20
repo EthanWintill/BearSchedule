@@ -23,7 +23,7 @@ function AddUnassignedShift(day, shiftObj) {
 
     shiftDiv.setAttribute('onclick', 'unassignedShiftClicked(' + JSON.stringify(shiftObj) + ')');
 
-    sideOfDay = timeIsAMorPm(shiftObj.startTime) 
+    sideOfDay = timeIsAMorPm(shiftObj.startTime);
 
     insertChildAlphabetically(document.getElementById(shiftObj.day + '_' + sideOfDay), shiftDiv);
 }
@@ -42,7 +42,7 @@ function removeShift(name, day, shift) {
                 "name": name,
                 "day": day.slice(0, 3).toLowerCase(),
                 "shift": shift,
-                "offset": week_offset? week_offset : 0
+                "offset": week_offset ? week_offset : 0
             }),
         }).then(response => {
             console.log(response.json());
@@ -66,15 +66,23 @@ function addShift(shiftObj, name) {
                 "name": name,
                 "day": shiftObj.day,
                 "shift": shiftObj.shift,
-                "offset": week_offset? week_offset : 0,
+                "offset": week_offset ? week_offset : 0,
                 "shift_id": shiftObj.id
             }),
         }).then(response => {
             console.log(response);
         }).catch(error => {
             console.error('Error:', error);
-            alert('Beep Boop! Error adding shift. Try again.');
         });
+
+    var shiftDiv = document.createElement('div');
+    shiftDiv.id = `${shiftObj.day}_${shiftObj.shift}_${name}`;
+    shiftDiv.className = `scheduled-shift ${shiftObj.day}_${shiftObj.shift}_${name}`;
+    shiftDiv.setAttribute('onclick', `existingShiftClicked(${name}, ${shiftObj.day}, ${shiftObj.shift});`);
+    shiftDiv.innerHTML = shiftObj.shift + ': ' + name;
+    let sideOfDay = timeIsAMorPm(shiftObj.startTime);
+    insertChildAlphabetically(document.getElementById(shiftObj.day + '_' + sideOfDay), shiftDiv);
+
 }
 
 //Other functions
@@ -86,7 +94,7 @@ function fillGaps() {
         let missing_shifts = getMissingShifts(taken_shifts, needed_shifts[formatted_day])//.map(shift => shift.shift));
         //create a div with class 'unscheduled-shift day_shift' for each missing shift
         for (let shift of missing_shifts) {
-            AddUnassignedShift(day,shift);
+            AddUnassignedShift(day, shift);
         }
     }
 }
@@ -95,10 +103,10 @@ function getScheduleEntry(name, day, shift) {
     return schedule[day].find(entry => entry.name == name && entry.shift == shift);
 }
 
-function textSchedule(){
+function textSchedule() {
     let currentParam = parseInt(window.location.pathname.split('/').pop());
     let week_offset = isNaN(currentParam) ? 0 : currentParam;
-    fetch(`/text-schedule/${week_offset}`,{
+    fetch(`/text-schedule/${week_offset}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -21,6 +21,15 @@ function showDropdown(shiftObj){
     td.appendChild(dropdown);
 }
 
+//hide the dropdown
+function hideDropdown(shiftObj){
+    let day = shiftObj.day;
+    let sideOfDay = timeIsAMorPm(shiftObj.startTime);
+    let td = document.getElementById(day+'_'+sideOfDay);
+    let dropdown = td.getElementsByClassName('staff-dropdown-shifts')[0];
+    dropdown.remove();
+}
+
 function unassignedShiftClicked(shiftObj){
     let day = shiftObj.day;
     let shift = shiftObj.shift;
@@ -31,7 +40,7 @@ function unassignedShiftClicked(shiftObj){
 
 function dropdownOptionSelected(shiftObj,name){
     addShift(shiftObj, name);
-    //setTimeout(window.location.reload(), 500);
+    hideDropdown(shiftObj);
 }
 
 
