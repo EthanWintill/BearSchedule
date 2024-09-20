@@ -69,7 +69,12 @@ function addShift(shiftObj, name) {
                 "offset": week_offset? week_offset : 0,
                 "shift_id": shiftObj.id
             }),
-        })
+        }).then(response => {
+            console.log(response);
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('Beep Boop! Error adding shift. Try again.');
+        });
 }
 
 //Other functions

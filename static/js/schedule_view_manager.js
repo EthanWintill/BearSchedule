@@ -30,8 +30,8 @@ function unassignedShiftClicked(shiftObj){
 }
 
 function dropdownOptionSelected(shiftObj,name){
-    addShift(shiftObj, name)
-    window.location.reload()
+    addShift(shiftObj, name);
+    setTimeout(window.location.reload(), 500);
 }
 
 
