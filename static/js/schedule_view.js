@@ -78,7 +78,7 @@ function addShift(shiftObj, name) {
     var shiftDiv = document.createElement('div');
     shiftDiv.id = `${shiftObj.day}_${shiftObj.shift}_${name}`;
     shiftDiv.className = `scheduled-shift ${shiftObj.day}_${shiftObj.shift}_${name}`;
-    shiftDiv.setAttribute('onclick', `existingShiftClicked(${name}, ${shiftObj.day}, ${shiftObj.shift});`);
+    shiftDiv.setAttribute('onclick', `existingShiftClicked('${name}', '${shiftObj.day}', '${shiftObj.shift}');`);
     shiftDiv.innerHTML = shiftObj.shift + ': ' + name;
     let sideOfDay = timeIsAMorPm(shiftObj.startTime);
     insertChildAlphabetically(document.getElementById(shiftObj.day + '_' + sideOfDay), shiftDiv);
