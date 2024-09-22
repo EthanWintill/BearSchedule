@@ -7,7 +7,6 @@
 <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 
-
 <main class="container">
     <h1>Settings</h1>
     <br>
@@ -21,20 +20,20 @@
             <p>Username: {{ user_info['username'] }}</p>
         </div>
         <fieldset role="group" id="usernameDiv" style="display: none;">
-            <input type="text" name="usernameInput" id="usernameInput" >
+            <input type="text" name="usernameInput" id="usernameInput">
             <button onclick="sendUsernameChange(document.getElementById('usernameInput').value)">Submit</button>
         </fieldset>
         <p>Password</p>
-        <fieldset role="group" id="disabledPasswordDiv">    
-            <input type="password" disabled value="********" >
+        <fieldset role="group" id="disabledPasswordDiv">
+            <input type="password" disabled value="********">
             <button onclick="toggleChangePassword()">Edit</button>
         </fieldset>
-        <fieldset role="group" id="passwordDiv" style="display: none;">    
+        <fieldset role="group" id="passwordDiv" style="display: none;">
             <input type="password" id="passwordInput" value="********">
             <button onclick="cancelPassChange()" class="secondary">Cancel</button>
             <button onclick="sendPassChange(document.getElementById('passwordInput').value)">Submit</button>
         </fieldset>
-    
+
 
     </article>
     {% if user_info.username=='admin' %}
@@ -67,54 +66,81 @@
         <button class="primary" id="shiftInput_{{day}}" onclick="document.querySelector('dialog').open = true;">New
             Shift</button>
     </div>
+    <br>
+        <details role="button" class="secondary outline" style="padding: 0;">
+            <summary style="padding: .75rem 1rem;">
+                View users 
+            </summary>
+            <hr>
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Phone Number</th>
+                </tr>
+                {% for user in users %}
+                <tr id="{{ user['id']}}">
+                    <td>{{ user['username'] }}</td>
+                    <td>
+                        <input type="text" value="{{ user['phone'] }}" style="margin-bottom: 0; height: 0;" onchange="changeBorderColor(this)">
+                    </td>
+                    </td>
+                </tr>
+                </tr>
+                {% endfor %}
+            </table>
+        </details>
+
     <h3>... Or delete an account</h2>
-    <fieldset role="group">
-        <select name="delete-name">
-            {% for name in names %}
-            <option value="{{name}}">{{name['username']}}</option>
-            {% endfor %}
-        </select>
-        <button onclick="confirmAccountDeletion(document.querySelector('select').value, true)" class="outline contrast red">Delete
-            account</button>
-    </fieldset>
-    <dialog>
-        <article>
-            <h2>Add New Required Shift</h2>
-            <form action="/settings" method="post">
-                <label for="start">Start Time:</label>
-                <input type="time" id="start" name="start" required>
-                <label for="end">End Time:</label>
-                <input type="time" id="end" name="end" required>
-                <label for="type">Shift Type:</label>
-                <select id="type" name="type" required>
-                    <option value="S" selected>Serving</option>
-                    <option value="T">Training</option>
-                    <option value="H">Host</option>
-                </select>
+        <fieldset role="group">
+            <select name="delete-name">
+                {% for user in users %}
+                <option value="{{name}}">{{user['username']}}</option>
+                {% endfor %}
+            </select>
+            <button onclick="confirmAccountDeletion(document.querySelector('select').value, true)"
+                class="outline contrast red">Delete
+                account</button>
+        </fieldset>
+        <dialog>
+            <article>
+                <h2>Add New Required Shift</h2>
+                <form action="/settings" method="post">
+                    <label for="start">Start Time:</label>
+                    <input type="time" id="start" name="start" required>
+                    <label for="end">End Time:</label>
+                    <input type="time" id="end" name="end" required>
+                    <label for="type">Shift Type:</label>
+                    <select id="type" name="type" required>
+                        <option value="S" selected>Serving</option>
+                        <option value="T">Training</option>
+                        <option value="H">Host</option>
+                    </select>
 
-                <div role="group">
-                    {% for day in days_of_week %}
-                    <div role="button" id="model-div-{{day}}" class="contrast outline avail-div"
-                        onclick="toggleShiftCheck(this)">
-                        <label for="">{{day.capitalize()}}</label>
-                        <input type="checkbox" id="modal-{{day}}" name="{{day}}" value="{{day}}" style="display: none;">
+                    <div role="group">
+                        {% for day in days_of_week %}
+                        <div role="button" id="model-div-{{day}}" class="contrast outline avail-div"
+                            onclick="toggleShiftCheck(this)">
+                            <label for="">{{day.capitalize()}}</label>
+                            <input type="checkbox" id="modal-{{day}}" name="{{day}}" value="{{day}}"
+                                style="display: none;">
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
 
 
-                <footer class="grid">
-                    <button class="secondary" onclick="document.querySelector('dialog').open = false;" type="button">
-                        Cancel
-                    </button>
-                    <button type="submit">Confirm</button>
-                </footer>
-            </form>
-        </article>
-    </dialog>
-    {% else %}
-    <button onclick="confirmAccountDeletion(user_info, false)" class="outline contrast red">Delete account</button>
-    {%endif%}
+                    <footer class="grid">
+                        <button class="secondary" onclick="document.querySelector('dialog').open = false;"
+                            type="button">
+                            Cancel
+                        </button>
+                        <button type="submit">Confirm</button>
+                    </footer>
+                </form>
+            </article>
+        </dialog>
+        {% else %}
+        <button onclick="confirmAccountDeletion(user_info, false)" class="outline contrast red">Delete account</button>
+        {%endif%}
 </main>
 
 {%endblock%}

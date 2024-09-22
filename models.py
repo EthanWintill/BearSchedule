@@ -217,6 +217,11 @@ def update_username(id: int, username: str):
     record.username = username
     db.session.commit()
 
+def update_phone(id: int, phone: int):
+    record = User.query.filter_by(id = id).first()
+    record.phone = phone
+    db.session.commit()
+
 def delete_user(id: int):
     user = User.query.filter_by(id = id).first()
 

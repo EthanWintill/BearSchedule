@@ -186,6 +186,8 @@ def approve_or_deny_shift_trade(message_body, manager_number):
     twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Shift transfer request for your {shiftObj.shift} shift has been approved', to=oldStaffNumber )
     return 'Shift transfer request resolved', 200
 
+def send_message(message, phone_number):
+    message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=message, to=phone_number )
 
 @texts.route('/text-schedule/<week_offset>', methods=['POST'])
 def text_schedule_route(week_offset):

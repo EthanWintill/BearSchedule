@@ -1,11 +1,15 @@
 from flask import Blueprint, flash, jsonify, request, redirect, render_template, url_for
 from flask_login import  login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import User, db, update_password, delete_user, update_username
-
+from models import User, db, update_password, delete_user, update_phone, update_username
+from texts.texts import send_message
+import random
+import string
 
 
 auth = Blueprint('auth', __name__)
+
+temp_password_dict = {}
 
 def init_auth_routes(login_manager):
     @login_manager.user_loader
@@ -21,10 +25,13 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         
-        if user and check_password_hash(user.password_hash, password):
+        if user and (check_password_hash(user.password_hash, password) or check_password_hash(temp_password_dict.get(user.phone, ''), password)):
             login_user(user)
             flash('You were successfully logged in')
+            temp_password_dict.pop(user.phone, None)
             return redirect(url_for('schedule_view'))
+        else:
+            flash('Invalid username or password.', 'error')
         
     return render_template('login.html')
 
@@ -41,7 +48,7 @@ def signup():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        phone = request.form['phone']
+        phone = ''.join(filter(str.isdigit, request.form['phone']))
 
         #data validation for phone number
         if len(phone) != 10 or not phone.isdigit():
@@ -57,6 +64,16 @@ def signup():
             return redirect(url_for('schedule_view'))
 
     return render_template('signup.html')
+
+@auth.route('/forgot_password', methods=['POST', 'GET'])
+def forgot_password():
+    if request.method == 'POST':
+        phone = int(''.join(filter(str.isdigit, request.form['phone'])))
+        temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        temp_password_dict[phone] = generate_password_hash(temp_password)
+        send_message(temp_password, phone)
+        return render_template('forgot_password.html', success=True)
+    return render_template('forgot_password.html')
 
 @auth.route('/delete_account', methods=['DELETE'])
 def delete_account():
@@ -86,4 +103,12 @@ def change_username():
     update_username(user_id, new_username)
     return jsonify({'status': 'ok'}), 200
 
+@auth.route('/change_phone', methods=['POST'])
+@login_required
+def change_phone():
+    data = request.get_json()
+    user_id = data['user_id']
+    new_phone = data['new_phone']
+    update_phone(user_id, new_phone)
+    return jsonify({'status': 'ok'}), 200
 

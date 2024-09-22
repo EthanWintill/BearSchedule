@@ -132,3 +132,15 @@ button.red{
     text-align: center;
     background-color: rgb(115, 116, 126);
 }
+
+summary {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+td > input{
+    background-color: transparent;
+    border: none;
+    color: #969eaf;
+    font-size: medium;
+}

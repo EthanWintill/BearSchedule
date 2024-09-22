@@ -34,9 +34,9 @@ function toggleChangePassword() {
 
 function toggleChangeUsername() {
     let usernameDisplay = document.getElementById('usernameDiv');
-    if(usernameDisplay.style.display === 'none'){
+    if (usernameDisplay.style.display === 'none') {
         usernameDisplay.style.removeProperty('display');
-    }else{
+    } else {
         usernameDisplay.style.display = 'none';
     }
 }
@@ -51,7 +51,7 @@ function cancelPassChange() {
 }
 
 function confirmAccountDeletion(user_info, isManager) {
-    if (isManager){
+    if (isManager) {
         user_info = JSON.parse(user_info.replace(/'/g, '"')); // convert single quotes to double quotes 
     }
     let confirmDialog;
@@ -62,7 +62,7 @@ function confirmAccountDeletion(user_info, isManager) {
     }
     let confirmDelete = confirm(confirmDialog);
 
-    if (!confirmDelete){return;}
+    if (!confirmDelete) { return; }
 
     fetch('/delete_account', {
         method: 'DELETE',
@@ -76,7 +76,7 @@ function confirmAccountDeletion(user_info, isManager) {
     }).then(() => {
         if (isManager) {
             window.location.href = '/settings';
-        }else{
+        } else {
             window.location.href = '/login';
         }
     }).catch((error) => {
@@ -118,4 +118,41 @@ function sendUsernameChange(newUsername) {
     }).catch((error) => {
         console.log(error);
     });
+}
+
+async function sendPhoneChange(newPhone, user_id) {
+    try {
+        await fetch('/change_phone', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "new_phone": newPhone,
+                'user_id': user_id
+            })
+        })
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+}
+
+async function changeBorderColor(element) {
+    let user_id = element.parentElement.parentElement.id;
+    let success = await sendPhoneChange(element.value, user_id);
+
+    if (success) {
+        element.parentElement.style.border = 'solid 2px green';
+        element.parentElement.setAttribute( 'data-tooltip', 'Phone number successfully changed');
+    } else {
+        element.parentElement.style.border = 'solid 2px red';
+        element.parentElement.setAttribute( 'data-tooltip', 'Error changing phone number');
+    }
+
+    setTimeout(() => {
+        element.parentElement.style.removeProperty('border');
+        element.parentElement.removeAttribute('data-tooltip');
+    }, 2000);
 }

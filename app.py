@@ -235,8 +235,8 @@ def checkAvail(shift, name, day, avails):
 @login_required
 def settings():
     days_of_week = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-    names = [user.as_dict() for user in User.query.all()]
-    names.remove(current_user.as_dict()) #only works because the only one whos uses names is admin
+    users = [user.as_dict() for user in User.query.all()]
+    users.remove(current_user.as_dict()) #only works because the only one whos uses names is admin
     if request.method == 'POST':
         start = request.form['start']
         end = request.form['end']
@@ -255,7 +255,7 @@ def settings():
         shift = data['shift']
         removeScheduleShift(day, shift)
         
-    return render_template('settings.html', needed_shifts = getShifts(), days_of_week=days_of_week, cap_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], user_info = current_user.as_dict(), names = names)
+    return render_template('settings.html', needed_shifts = getShifts(), days_of_week=days_of_week, cap_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], user_info = current_user.as_dict(), users = users)
 
 if __name__ == '__main__':
     app.run(debug=True)
