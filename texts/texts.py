@@ -5,6 +5,7 @@ from openai import OpenAI
 from twilio import rest
 import os
 import json
+from threading import Thread
 from models import Schedule, get_name_from_number, get_number_from_name, get_schedule_for_week, get_staff_without_availability, write_availability_to_database, db
 from dotenv import load_dotenv
 from models import User
@@ -225,20 +226,27 @@ def alertStaffAvailShift(shiftObj: dict):
             raise Exception('Error sending schedule')
         
 
+def send_text(staff):
+    try:
+        message = twilio_client.messages.create(
+            from_=os.environ.get('TWILIO_PHONE_NUM'), 
+            body=f'Last chance to put in your availability!! If its not entered by saturday morning, I will have to mark you down as open all week!\r\n\r\nYou can reply to this message with next weeks availability or go to https://bearschedule.com/availability_form', 
+            to=staff['phone']
+        )
+        print(message.sid)
+    except:
+        print(f'{staff["phone"]} is not a phone numbers')
+        raise Exception('Error sending schedule')
+
 @texts.route('/availability_alert', methods=['POST'])
 def availability_alert():
     if os.environ.get('ENV') == 'DEV':
-        lazy_staff = [{'phone': '8329199116'}]
+        lazy_staff = [{'phone': '8329199116'}]*20
     else:
         lazy_staff = get_staff_without_availability()
 
     for staff in lazy_staff:
-        try:
-            message = twilio_client.messages.create( from_=os.environ.get('TWILIO_PHONE_NUM'), body=f'Last chance to put in your availability!! If its not entered by saturday morning, I will have to mark you down as open all week!\r\n\r\nYou can reply to this message with next weeks availability or go to https://bearschedule.com/availability_form', to=staff['phone'] )
-            print(message.sid)
-        except:
-            print(f'{staff["phone"]} is not a phone numbers')
-            raise Exception('Error sending schedule')
-        
+        Thread(target=send_text, args=(staff,)).start()
+
     return 'Availability alert sent', 200
 
