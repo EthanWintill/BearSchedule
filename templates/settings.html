@@ -94,7 +94,7 @@
         <fieldset role="group">
             <select name="delete-name">
                 {% for user in users %}
-                <option value="{{name}}">{{user['username']}}</option>
+                <option value="{{user}}">{{user['username']}}</option>
                 {% endfor %}
             </select>
             <button onclick="confirmAccountDeletion(document.querySelector('select').value, true)"
