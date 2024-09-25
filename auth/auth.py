@@ -1,3 +1,4 @@
+import html
 from flask import Blueprint, flash, jsonify, request, redirect, render_template, url_for
 from flask_login import  login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -46,9 +47,9 @@ def logout():
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form['username']
+        username = html.escape(request.form['username'])
         password = request.form['password']
-        phone = ''.join(filter(str.isdigit, request.form['phone']))
+        phone = html.escape(''.join(filter(str.isdigit, request.form['phone'])))
 
         #data validation for phone number
         if len(phone) != 10 or not phone.isdigit():
@@ -68,7 +69,7 @@ def signup():
 @auth.route('/forgot_password', methods=['POST', 'GET'])
 def forgot_password():
     if request.method == 'POST':
-        phone = int(''.join(filter(str.isdigit, request.form['phone'])))
+        phone = int(''.join(filter(str.isdigit, html.escape(request.form['phone']))))
         temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
         temp_password_dict[phone] = generate_password_hash(temp_password)
         send_message(temp_password, phone)
@@ -98,8 +99,8 @@ def change_password():
 @login_required
 def change_username():
     data = request.get_json()
-    user_id = data['user_id']
-    new_username = data['new_username']
+    user_id = html.escape(data['user_id'])
+    new_username = html.escape(data['new_username'])
     update_username(user_id, new_username)
     return jsonify({'status': 'ok'}), 200
 
@@ -107,8 +108,8 @@ def change_username():
 @login_required
 def change_phone():
     data = request.get_json()
-    user_id = data['user_id']
-    new_phone = data['new_phone']
+    user_id = html.escape(data['user_id'])
+    new_phone = html.escape(data['new_phone'])
     update_phone(user_id, new_phone)
     return jsonify({'status': 'ok'}), 200
 
