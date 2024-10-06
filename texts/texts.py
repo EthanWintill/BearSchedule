@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, request
+from flask import Blueprint, flash, request
 from twilio.twiml.messaging_response import MessagingResponse
 from openai import OpenAI
 from twilio import rest
@@ -135,7 +135,7 @@ def text_schedule(schedule):
             print(f'{recipient[0]} is not a phone numbers')
             raise Exception('Error sending schedule')
         
-        
+
             
 
 @texts.route('/shift_transfer_request', methods=['POST'])
@@ -250,3 +250,13 @@ def availability_alert():
 
     return 'Availability alert sent', 200
 
+@texts.route('/sendMassText', methods=['POST'])
+def send_mass_text():
+    data = request.get_json()
+    message = data['message']
+    staff = User.query.filter(User.username != 'admin').with_entities(User.phone).all()
+    if os.environ.get('ENV') == 'DEV':
+        staff = staff[:2]
+    for person in staff:
+        Thread(target=send_message, args=(message, person[0])).start()
+    return 'Mass text sent', 200
