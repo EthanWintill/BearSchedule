@@ -138,12 +138,22 @@
         <form action="/newschedule" method="GET">
             <button type="submit">Create Schedule</button>
         </form>
+
+        
         {% else %}
         <form action="/availability_form" method="GET">
             <button type="submit">Enter Availability</button>
         </form>
         {%endif%}
     </div>
+
+    {% if username=='admin' %}
+    <h2>Send a message to all staff</h2>
+    <fieldset role="group" id="massTextDiv" >
+        <input type="text" name="massTextInput" id="massTextInput">
+        <button onclick="sendMassText(document.getElementById('massTextInput').value)">Send</button>
+    </fieldset>
+    {%endif%}
 </div>
 
 
