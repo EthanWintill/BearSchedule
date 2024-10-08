@@ -71,10 +71,10 @@ async function sendMassText(message) {
 
     if (success) {
         element.style.border = 'solid 2px green';
-        element.setAttribute('data-tooltip', 'Phone number successfully changed');
+        element.setAttribute('data-tooltip', 'Text successfully sent');
     } else {
         element.style.border = 'solid 2px red';
-        element.setAttribute('data-tooltip', 'Error changing phone number');
+        element.setAttribute('data-tooltip', 'Error sending text');
     }
 
     setTimeout(() => {
