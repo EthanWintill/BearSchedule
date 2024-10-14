@@ -50,6 +50,13 @@ def signup():
         username = html.escape(request.form['username'])
         password = request.form['password']
         phone = html.escape(''.join(filter(str.isdigit, request.form['phone'])))
+        org_code = html.escape(request.form['org_code'])
+
+        #check org code
+        #TODO: change this to a database query
+        if org_code != 'IGarden':
+            flash('Invalid organization code')
+            return redirect(url_for('auth.signup'))
 
         #data validation for phone number
         if len(phone) != 10 or not phone.isdigit():
