@@ -2,7 +2,7 @@ Flask==3.1.2
 Flask_JWT_Extended==4.6.0
 Flask_Login==0.6.3
 flask_sqlalchemy==3.1.1
-itsdangerous==2.1.2
+itsdangerous==2.2.0
 openai==1.107.0
 PyAutoGUI==0.9.54
 python-dotenv==1.1.1
